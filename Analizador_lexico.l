@@ -1,20 +1,18 @@
 %{
 #include <stdio.h>
 #include <string.h>
-#include "Analizador_sintactico.tab.h" // Asegúrate que el nombre coincida
+#include "analizador_sintactico.tab.h"
 %}
 
 %option yylineno
 
 /* ---------- DEFINICIONES REGULARES ---------- */
-
 LETRA             [a-zA-Z_]
 DIGITO            [0-9]
 CARACTERES_IGNORADOS [ \t\n\r]+
 COMENTARIO_BLOQUE  "/*"([^*]|\*+[^*/])*\*+"/"
 IDENTIFICADOR_PATRON {LETRA}({LETRA}|{DIGITO})*
 CONSTANTE_ENTERA_PATRON (0|[1-9]{DIGITO}*)
-CONSTANTE_FLOTANTE_PATRON ({DIGITO}+\.{DIGITO}*([eE][+-]?{DIGITO}+)? | {DIGITO}*\.{DIGITO}+([eE][+-]?{DIGITO}+)? | {DIGITO}+[eE][+-]?{DIGITO}+)
 CONSTANTE_CARACTER_PATRON \'([^'\\]|\\.)\'
 STRING_LITERAL_PATRON \"([^"\\]|\\.)*\"
 
@@ -25,13 +23,11 @@ STRING_LITERAL_PATRON \"([^"\\]|\\.)*\"
 
 "if"                    { return IF_TOKEN; }
 "else"                  { return ELSE_TOKEN; }
-"while"                 { return WHILE_TOKEN; }
+"while"                 { return WHILE_TOKEN; } // Aunque no lo implementemos aún
 "return"                { return RETURN_TOKEN; }
 "int"                   { return INT_TOKEN; }
-"char"                  { return CHAR_TOKEN; }
+"char"                  { return CHAR_TOKEN; } // Aunque no lo implementemos aún
 "void"                  { return VOID_TOKEN; }
-"print"                 { return PRINT_TOKEN; } // NUEVO TOKEN 
-
 
 "+"                     { return OPERADOR_SUMA_TOKEN; }
 "-"                     { return OPERADOR_RESTA_TOKEN; }
@@ -52,19 +48,15 @@ STRING_LITERAL_PATRON \"([^"\\]|\\.)*\"
 ")"                     { return PARENTESIS_DER_TOKEN; }
 "{"                     { return LLAVE_IZQ_TOKEN; }
 "}"                     { return LLAVE_DER_TOKEN; }
-"..."                   { return PUNTOS_SUSPENSIVOS_TOKEN; }
-
+"..."                   { return PUNTOS_SUSPENSIVOS_TOKEN; } 
 
 {IDENTIFICADOR_PATRON} {
-    if (yyleng > 100) {
-        fprintf(stderr, "ERROR_LEXICO: Identificador '%.*s' excede 100 caracteres.\n", yyleng, yytext);
-    }
     yylval.sval = strdup(yytext);
     return IDENTIFICADOR_TOKEN;
 }
 
 {CONSTANTE_ENTERA_PATRON} {
-    yylval.sval = strdup(yytext); // Se envía como string, se convertirá en el parser
+    yylval.sval = strdup(yytext);
     return CONSTANTE_ENTERA_TOKEN;
 }
 
@@ -78,7 +70,8 @@ STRING_LITERAL_PATRON \"([^"\\]|\\.)*\"
     return STRING_LITERAL_TOKEN;
 }
 
-.   { fprintf(stderr, "ERROR_LEXICO: Caracter desconocido '%c' (ASCII: %d)\n", yytext[0], yytext[0]); }
+.   { fprintf(stderr, "LEX_ERROR: Unknown char '%c' (ASCII: %d) en linea %d\n", yytext[0], yytext[0], yylineno); }
+
 
 %%
 
