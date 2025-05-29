@@ -35,7 +35,7 @@
 /* "%code requires" blocks.  */
 
 /* Line 1676 of yacc.c  */
-#line 40 "analizador_sintactico.y"
+#line 34 "analizador_sintactico.y"
 
     typedef enum TipoSimbolo {
         TIPO_DESCONOCIDO, TIPO_INT_VAR, TIPO_CHAR_PTR_VAR, TIPO_VOID_VAR,
@@ -94,7 +94,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 64 "analizador_sintactico.y"
+#line 53 "analizador_sintactico.y"
 
     char *sval;
     int ival;

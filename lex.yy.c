@@ -690,12 +690,12 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 21 "Analizador_lexico.l"
-{ /* Ignorar */ }
+
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 22 "Analizador_lexico.l"
-{ /* Ignorar */ }
+
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
@@ -710,7 +710,7 @@ YY_RULE_SETUP
 case 5:
 YY_RULE_SETUP
 #line 26 "Analizador_lexico.l"
-{ return WHILE_TOKEN; } // Aunque no lo implementemos aún
+{ return WHILE_TOKEN; } 
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
@@ -725,7 +725,7 @@ YY_RULE_SETUP
 case 8:
 YY_RULE_SETUP
 #line 29 "Analizador_lexico.l"
-{ return CHAR_TOKEN; } // Aunque no lo implementemos aún
+{ return CHAR_TOKEN; } 
 	YY_BREAK
 case 9:
 YY_RULE_SETUP

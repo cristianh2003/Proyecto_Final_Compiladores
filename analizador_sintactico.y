@@ -1,4 +1,4 @@
-%{ 
+%{
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -7,13 +7,12 @@
 int yylex(void);
 void yyerror(const char *s);
 
-extern char *yytext;
-extern int yylineno;
-extern FILE *yyin;
-
-#define MAX_SIMBOLOS 100
-#define MAX_ARGS_FUNCION 10
-#define MODO_STACK_SIZE 100
+extern char *yytext;        // Texto actual del token analizado
+extern int yylineno;        // Número de línea actual del analizador léxico
+extern FILE *yyin;          // Archivo de entrada para el analizador léxico
+ 
+#define MAX_SIMBOLOS 100    // Número máximo de símbolos que se pueden declarar
+#define MODO_STACK_SIZE 100 // Tamaño máximo de la pila de modo de ejecución
 
 int modo_ejecucion_stack[MODO_STACK_SIZE];
 int modo_ejecucion_stack_ptr = 0;
@@ -24,15 +23,11 @@ void pop_modo(void);
 
 typedef enum TipoSimbolo TipoSimbolo;
 typedef struct Simbolo Simbolo;
-typedef union ValorArgumento ValorArgumento; // Definida en %code
 
 Simbolo* buscar_simbolo(const char *nombre);
 void declarar_simbolo(char *nombre_sim, TipoSimbolo tipo, int es_externa);
 void asignar_valor_int_variable(const char *nombre_var, int valor_nuevo);
 int obtener_valor_int_variable(const char *nombre_var);
-
-int printf_simulado_simple(void);
-int scanf_simulado_simple(void);
 
 %}
 
@@ -44,8 +39,6 @@ int scanf_simulado_simple(void);
 }
 
 %code {
-    typedef union ValorArgumento { int ival; char* sval; } ValorArgumento;
-
     typedef struct Simbolo {
         char *nombre; TipoSimbolo tipo; int es_funcion_externa;
         int valor_int; char* valor_sval; int inicializado;
@@ -55,9 +48,6 @@ int scanf_simulado_simple(void);
     int num_simbolos = 0;
     static char* lvalue_nombre_actual = NULL;
     static TipoSimbolo tipo_especificado_actual;
-
-    ValorArgumento argumentos_evaluados[MAX_ARGS_FUNCION];
-    int num_argumentos_evaluados = 0;
 }
 
 %union {
@@ -74,7 +64,6 @@ int scanf_simulado_simple(void);
 %token OPERADOR_MENOR_IGUAL_TOKEN OPERADOR_MAYOR_IGUAL_TOKEN
 %token PARENTESIS_IZQ_TOKEN PARENTESIS_DER_TOKEN LLAVE_IZQ_TOKEN LLAVE_DER_TOKEN
 %token PUNTO_COMA_TOKEN COMA_TOKEN PUNTOS_SUSPENSIVOS_TOKEN
-%token PRINTF_TOKEN
 
 // --- PRECEDENCIA Y ASOCIATIVIDAD ---
 %right ASIGNACION_TOKEN
@@ -92,7 +81,6 @@ int scanf_simulado_simple(void);
 %type <ival> expresion_relacional expresion_aditiva expresion_multiplicativa
 %type <ival> expresion_unaria expresion_postfix primaria constante_entera_valor
 %type <ival> expresion_opc
-%type <sval> string_literal
 
 %type <decl_info> declarador_con_tipo
 %type <ival> sentencia sentencia_seleccion sentencia_iteracion sentencia_salto
@@ -100,7 +88,7 @@ int scanf_simulado_simple(void);
 
 %start unidad_compilacion
 
-%% /* INICIO DE LAS REGLAS GRAMATICALES */
+%% // INICIO DE LAS REGLAS GRAMATICALES 
 
 unidad_compilacion
     : lista_declaraciones_externas_opc
@@ -134,11 +122,8 @@ declarador_con_tipo
         $$.nombre = $2;
         if (tipo_especificado_actual == TIPO_INT_VAR) $$.tipo = TIPO_INT_FUNC;
         else if (tipo_especificado_actual == TIPO_VOID_VAR) $$.tipo = TIPO_VOID_FUNC;
-        else if (tipo_especificado_actual == TIPO_CHAR_PTR_VAR && strcmp($2, "scanf")!=0 && strcmp($2, "printf")!=0) { $$.tipo = TIPO_DESCONOCIDO; }
+        else if (tipo_especificado_actual == TIPO_CHAR_PTR_VAR) { $$.tipo = TIPO_DESCONOCIDO; }
         else $$.tipo = TIPO_DESCONOCIDO;
-
-        if (strcmp($2, "printf") == 0) $$.tipo = TIPO_BUILTIN_FUNC;
-        if (strcmp($2, "scanf") == 0)  $$.tipo = TIPO_BUILTIN_FUNC;
       }
     ;
 
@@ -153,14 +138,11 @@ param_declaracion_funcion : especificador_tipo declarador_con_tipo { free($2.nom
 
 definicion_funcion: especificador_tipo declarador_con_tipo cuerpo_funcion;
 
-contenido_parametros_funcion : | VOID_TOKEN | lista_real_parametros ;
 especificador_tipo
     : VOID_TOKEN { tipo_especificado_actual = TIPO_VOID_VAR; }
     | CHAR_TOKEN { tipo_especificado_actual = TIPO_CHAR_PTR_VAR; }
     | INT_TOKEN  { tipo_especificado_actual = TIPO_INT_VAR; }
     ;
-lista_real_parametros : param_declaracion | lista_real_parametros COMA_TOKEN param_declaracion ;
-param_declaracion : especificador_tipo declarador_con_tipo { free($2.nombre); };
 
 cuerpo_funcion
     : LLAVE_IZQ_TOKEN { push_modo(get_modo()); }
@@ -178,15 +160,6 @@ sentencia
     | sentencia_seleccion        { $$ = 0; }
     | sentencia_iteracion        { $$ = 0; }
     | sentencia_salto            { $$ = 0; }
-    | PRINTF_TOKEN PARENTESIS_IZQ_TOKEN STRING_LITERAL_TOKEN PARENTESIS_DER_TOKEN PUNTO_COMA_TOKEN {
-        char* str_literal = $3;
-        if (strlen(str_literal) >= 2) { // Asegurarse de que hay al menos comillas
-            str_literal[strlen(str_literal) - 1] = '\0'; // Poner fin de cadena antes de la última comilla
-            printf("%s", str_literal + 1);          // Imprimir desde después de la primera comilla
-        }
-        fflush(stdout); // Buena práctica para asegurar que la salida se muestre
-        free($3); // Liberar la memoria de strdup() del lexer
-        }
     ;
 
 sentencia_expresion : expresion_opc PUNTO_COMA_TOKEN ;
@@ -202,7 +175,7 @@ sentencia_seleccion
       sentencia
       ELSE_TOKEN
       {
-          pop_modo(); 
+          pop_modo();
           int outer_can_execute = get_modo();
           push_modo(outer_can_execute && !($1));
       }
@@ -273,37 +246,19 @@ expresion_unaria
 
 expresion_postfix
     : primaria { $$ = $1; }
-    | IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN { num_argumentos_evaluados = 0; } lista_argumentos_opc PARENTESIS_DER_TOKEN {
+    | IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN lista_argumentos_opc PARENTESIS_DER_TOKEN {
         if (get_modo()) {
             Simbolo* func = buscar_simbolo($1);
-            if (func && func->tipo == TIPO_BUILTIN_FUNC) {
-                if (strcmp(func->nombre, "printf") == 0) {
-                    $$ = printf_simulado_simple(); // <--- LLAMADA A LA VERSIÓN SIMPLE
-                } else if (strcmp(func->nombre, "scanf") == 0) {
-                    $$ = scanf_simulado_simple();  // <--- LLAMADA A LA VERSIÓN SIMPLE
-                } else { yyerror("Funcion builtin desconocida."); $$ = 0; }
-                
-                // Liberar la cadena de formato (siempre el primer argumento para estos casos)
-                if (num_argumentos_evaluados > 0 && argumentos_evaluados[0].sval != NULL) {
-                    free(argumentos_evaluados[0].sval);
-                    argumentos_evaluados[0].sval = NULL; 
-                }
-            } else if (func) { 
-                yyerror("Llamadas a funciones definidas por el usuario no implementadas."); $$ = 0; 
-            } else { 
-                char msg[256]; sprintf(msg, "Error Semantico: Funcion '%s' no declarada.", $1); yyerror(msg); $$ = 0; 
+            if (func) {
+                yyerror("Llamadas a funciones definidas por el usuario (con o sin argumentos) no implementadas completamente para ejecucion."); $$ = 0;
+            } else {
+                char msg[256]; sprintf(msg, "Error Semantico: Funcion '%s' no declarada.", $1); yyerror(msg); $$ = 0;
             }
             if ($1) free($1); // Liberar nombre de función
-        } else { 
-            $$ = 0; 
+        } else {
+            $$ = 0;
             if ($1) free($1);
-            // Liberar cadena de formato si no se ejecuta pero se parseó
-            if (num_argumentos_evaluados > 0 && argumentos_evaluados[0].sval != NULL) {
-                free(argumentos_evaluados[0].sval);
-                argumentos_evaluados[0].sval = NULL;
-            }
         }
-        num_argumentos_evaluados = 0; // Reset para la próxima llamada
       }
     ;
 
@@ -314,35 +269,14 @@ primaria
         lvalue_nombre_actual = $1;
       }
     | constante_entera_valor { $$ = $1; }
-    | string_literal { // Este es el string de formato para printf/scanf
-        if (num_argumentos_evaluados < MAX_ARGS_FUNCION) {
-            argumentos_evaluados[num_argumentos_evaluados].sval = $1; // $1 es el string (ya strdup'd)
-            argumentos_evaluados[num_argumentos_evaluados].ival = 0;  // Marcar como no int
-            num_argumentos_evaluados++;
-        } else { yyerror("Demasiados argumentos para funcion (string literal)."); free($1); }
-        $$ = 0;
-      }
     | PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN { $$ = $2; }
     ;
 
 constante_entera_valor : CONSTANTE_ENTERA_TOKEN { $$ = atoi($1); free($1); } ;
-string_literal : STRING_LITERAL_TOKEN { $$ = $1; } ; // $1 es char* (strdup'd)
 
-lista_argumentos_opc : | lista_argumentos ;
-lista_argumentos // Para los argumentos DESPUÉS del string de formato
-    : expresion_asignacion { // Este es el primer argumento numérico (ej. 'var' en printf("%d", var))
-        if (num_argumentos_evaluados < MAX_ARGS_FUNCION) {
-            argumentos_evaluados[num_argumentos_evaluados++].ival = $1;
-        } else { yyerror("Demasiados argumentos para funcion (expr_asig).");}
-      }
-    | lista_argumentos COMA_TOKEN expresion_asignacion { // Argumentos numéricos subsiguientes (no usado en tus ejemplos simples)
-        if (num_argumentos_evaluados < MAX_ARGS_FUNCION) {
-            argumentos_evaluados[num_argumentos_evaluados++].ival = $3;
-        } else { yyerror("Demasiados argumentos para funcion (lista, expr_asig)."); }
-      }
-    ;
+lista_argumentos_opc :  ; // Las llamadas a función ahora solo soportan cero argumentos 
 
-%% /* SECCIÓN DE CÓDIGO C ADICIONAL */
+%% // SECCIÓN DE CÓDIGO C ADICIONAL 
 
 int get_modo(void) {
     if (modo_ejecucion_stack_ptr > 0) return modo_ejecucion_stack[modo_ejecucion_stack_ptr - 1];
@@ -365,7 +299,7 @@ Simbolo* buscar_simbolo(const char *nombre) {
 void declarar_simbolo(char *nombre_sim, TipoSimbolo tipo, int es_externa) {
     Simbolo* existente = buscar_simbolo(nombre_sim);
     if (existente != NULL) {
-        if (es_externa && existente->es_funcion_externa && existente->tipo == tipo) { free(nombre_sim); return; }
+        if (es_externa && existente->es_funcion_externa && existente->tipo == tipo) { free(nombre_sim); return; } 
         char msg[256]; sprintf(msg, "Error Semantico: Redeclaracion de '%s'", nombre_sim); yyerror(msg); free(nombre_sim); return;
     }
     if (num_simbolos >= MAX_SIMBOLOS) { yyerror("Tabla de simbolos llena"); free(nombre_sim); exit(1); }
@@ -391,68 +325,17 @@ int obtener_valor_int_variable(const char *nombre_var) {
     return s->valor_int;
 }
 
-// --- IMPLEMENTACIÓN DE printf_simulado_simple y scanf_simulado_simple ---
-int printf_simulado_simple(void) {
-    if (!get_modo()) return 0;
-    int chars_printed = 0; // El valor de retorno de printf no es crucial para la simulación básica
-
-    // CASO 1: printf("cadena literal");
-    if (num_argumentos_evaluados == 1 && argumentos_evaluados[0].sval != NULL) {
-        printf("%s", argumentos_evaluados[0].sval);
-        // Si necesitaras el conteo exacto:
-        // char temp_buffer[1024];
-        // chars_printed = snprintf(temp_buffer, sizeof(temp_buffer), "%s", argumentos_evaluados[0].sval);
-    }
-    // CASO 2: printf("%d\n", var); o printf("%d", var);
-    else if (num_argumentos_evaluados == 2 &&
-               argumentos_evaluados[0].sval != NULL &&
-               (strcmp(argumentos_evaluados[0].sval, "%d\n") == 0 || strcmp(argumentos_evaluados[0].sval, "%d") == 0) ) {
-        printf(argumentos_evaluados[0].sval, argumentos_evaluados[1].ival);
-        // Si necesitaras el conteo exacto:
-        // char temp_buffer[50];
-        // chars_printed = snprintf(temp_buffer, sizeof(temp_buffer), argumentos_evaluados[0].sval, argumentos_evaluados[1].ival);
-    } else {
-        // Opcional: yyerror("printf_simulado_simple: Uso no soportado o argumentos incorrectos.");
-    }
-    return chars_printed; // O simplemente 0 o 1 si el valor de retorno no se usa en tu lenguaje
-}
-
-int scanf_simulado_simple(void) {
-    if (!get_modo()) return 0;
-
-    // CASO: var = scanf("%d");
-    // Se espera que argumentos_evaluados[0].sval sea "%d"
-    if (num_argumentos_evaluados == 1 && argumentos_evaluados[0].sval != NULL &&
-        strcmp(argumentos_evaluados[0].sval, "%d") == 0) {
-        int val_leido = 0;
-        fflush(stdout); // Asegurar que cualquier printf anterior se muestre
-        if (scanf("%d", &val_leido) == 1) {
-            int c; while ((c = getchar()) != '\n' && c != EOF); // Limpiar buffer de entrada
-            return val_leido;
-        } else {
-            yyerror("scanf_simulado_simple: Error en la entrada (no es un entero).");
-            int c; while ((c = getchar()) != '\n' && c != EOF); // Limpiar buffer
-            return 0; // O algún valor de error
-        }
-    } else {
-        // yyerror("scanf_simulado_simple: Uso no soportado. Se esperaba scanf(\"%d\").");
-        return 0; // O algún valor de error
-    }
-}
-
 void yyerror(const char *s) {
     fprintf(stderr, "Error: %s cerca de '%s' (Linea: %d)\n", s, yytext, yylineno);
-    while(modo_ejecucion_stack_ptr > 0) pop_modo();
-    push_modo(0);
+    while(modo_ejecucion_stack_ptr > 0) pop_modo(); // Limpiar pila de modo para evitar ejecución incorrecta
+    push_modo(0); // Poner en modo "no ejecutar"
 }
 
 int main(int argc, char *argv[]) {
     lvalue_nombre_actual = NULL;
     modo_ejecucion_stack_ptr = 0;
-    push_modo(1);
+    push_modo(1); // Iniciar en modo ejecución
 
-    declarar_simbolo(strdup("printf"), TIPO_BUILTIN_FUNC, 1);
-    declarar_simbolo(strdup("scanf"), TIPO_BUILTIN_FUNC, 1);
 
     if (argc > 1) {
         yyin = fopen(argv[1], "r");
@@ -461,6 +344,7 @@ int main(int argc, char *argv[]) {
 
     yyparse();
 
+    // Limpieza de la tabla de símbolos
     for (int i = 0; i < num_simbolos; i++) {
         if (tabla_simbolos[i].nombre != NULL) { free(tabla_simbolos[i].nombre); tabla_simbolos[i].nombre = NULL; }
         if (tabla_simbolos[i].valor_sval != NULL) { free(tabla_simbolos[i].valor_sval); tabla_simbolos[i].valor_sval = NULL; }
@@ -469,6 +353,6 @@ int main(int argc, char *argv[]) {
 
     if (yyin != stdin && yyin != NULL) fclose(yyin);
     
-    pop_modo();
+    if (modo_ejecucion_stack_ptr > 0) pop_modo(); // Asegurarse de que la pila de modo quede balanceada
     return 0;
 }
