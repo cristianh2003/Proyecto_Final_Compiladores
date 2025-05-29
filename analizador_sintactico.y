@@ -1,4 +1,4 @@
-%{ // Sección 1: Prólogo C - Includes, prototipos, constantes, globales simples
+%{ 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -31,7 +31,6 @@ void declarar_simbolo(char *nombre_sim, TipoSimbolo tipo, int es_externa);
 void asignar_valor_int_variable(const char *nombre_var, int valor_nuevo);
 int obtener_valor_int_variable(const char *nombre_var);
 
-// Prototipos para las versiones SIMPLIFICADAS
 int printf_simulado_simple(void);
 int scanf_simulado_simple(void);
 
@@ -75,6 +74,7 @@ int scanf_simulado_simple(void);
 %token OPERADOR_MENOR_IGUAL_TOKEN OPERADOR_MAYOR_IGUAL_TOKEN
 %token PARENTESIS_IZQ_TOKEN PARENTESIS_DER_TOKEN LLAVE_IZQ_TOKEN LLAVE_DER_TOKEN
 %token PUNTO_COMA_TOKEN COMA_TOKEN PUNTOS_SUSPENSIVOS_TOKEN
+%token PRINTF_TOKEN
 
 // --- PRECEDENCIA Y ASOCIATIVIDAD ---
 %right ASIGNACION_TOKEN
@@ -178,6 +178,15 @@ sentencia
     | sentencia_seleccion        { $$ = 0; }
     | sentencia_iteracion        { $$ = 0; }
     | sentencia_salto            { $$ = 0; }
+    | PRINTF_TOKEN PARENTESIS_IZQ_TOKEN STRING_LITERAL_TOKEN PARENTESIS_DER_TOKEN PUNTO_COMA_TOKEN {
+        char* str_literal = $3;
+        if (strlen(str_literal) >= 2) { // Asegurarse de que hay al menos comillas
+            str_literal[strlen(str_literal) - 1] = '\0'; // Poner fin de cadena antes de la última comilla
+            printf("%s", str_literal + 1);          // Imprimir desde después de la primera comilla
+        }
+        fflush(stdout); // Buena práctica para asegurar que la salida se muestre
+        free($3); // Liberar la memoria de strdup() del lexer
+        }
     ;
 
 sentencia_expresion : expresion_opc PUNTO_COMA_TOKEN ;

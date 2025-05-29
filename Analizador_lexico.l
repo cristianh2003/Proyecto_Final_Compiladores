@@ -18,15 +18,15 @@ STRING_LITERAL_PATRON \"([^"\\]|\\.)*\"
 
 
 %%
-{CARACTERES_IGNORADOS}   { /* Ignorar */ }
-{COMENTARIO_BLOQUE}    { /* Ignorar */ }
+{CARACTERES_IGNORADOS}   
+{COMENTARIO_BLOQUE}    
 
 "if"                    { return IF_TOKEN; }
 "else"                  { return ELSE_TOKEN; }
-"while"                 { return WHILE_TOKEN; } // Aunque no lo implementemos aún
+"while"                 { return WHILE_TOKEN; } 
 "return"                { return RETURN_TOKEN; }
 "int"                   { return INT_TOKEN; }
-"char"                  { return CHAR_TOKEN; } // Aunque no lo implementemos aún
+"char"                  { return CHAR_TOKEN; } 
 "void"                  { return VOID_TOKEN; }
 
 "+"                     { return OPERADOR_SUMA_TOKEN; }
