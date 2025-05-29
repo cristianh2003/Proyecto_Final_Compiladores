@@ -1,8 +1,10 @@
 %{
 #include <stdio.h>
 #include <string.h>
-#include "Analizador_sintactico.tab.h" // Archivo generado por Bison/Yacc
+#include "Analizador_sintactico.tab.h" // Asegúrate que el nombre coincida
 %}
+
+%option yylineno
 
 /* ---------- DEFINICIONES REGULARES ---------- */
 
@@ -28,6 +30,8 @@ STRING_LITERAL_PATRON \"([^"\\]|\\.)*\"
 "int"                   { return INT_TOKEN; }
 "char"                  { return CHAR_TOKEN; }
 "void"                  { return VOID_TOKEN; }
+"print"                 { return PRINT_TOKEN; } // NUEVO TOKEN 
+
 
 "+"                     { return OPERADOR_SUMA_TOKEN; }
 "-"                     { return OPERADOR_RESTA_TOKEN; }
@@ -55,12 +59,12 @@ STRING_LITERAL_PATRON \"([^"\\]|\\.)*\"
     if (yyleng > 100) {
         fprintf(stderr, "ERROR_LEXICO: Identificador '%.*s' excede 100 caracteres.\n", yyleng, yytext);
     }
-    yylval.sval = strdup(yytext); // Guardar el string si %union tiene sval
+    yylval.sval = strdup(yytext);
     return IDENTIFICADOR_TOKEN;
 }
 
 {CONSTANTE_ENTERA_PATRON} {
-    yylval.sval = strdup(yytext);
+    yylval.sval = strdup(yytext); // Se envía como string, se convertirá en el parser
     return CONSTANTE_ENTERA_TOKEN;
 }
 
@@ -81,6 +85,3 @@ STRING_LITERAL_PATRON \"([^"\\]|\\.)*\"
 int yywrap(void) {
     return 1;
 }
-// No necesitas un main() aquí si el main() está en el archivo .y
-// o si compilas y enlazas de otra manera.
-// Si Bison genera el main, esta función main aquí sería conflictiva.

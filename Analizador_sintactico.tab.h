@@ -51,26 +51,27 @@
      ELSE_TOKEN = 267,
      WHILE_TOKEN = 268,
      RETURN_TOKEN = 269,
-     ASIGNACION_TOKEN = 270,
-     OPERADOR_SUMA_TOKEN = 271,
-     OPERADOR_RESTA_TOKEN = 272,
-     OPERADOR_MULTIPLICACION_TOKEN = 273,
-     OPERADOR_DIVISION_TOKEN = 274,
-     COMPARACION_IGUAL_TOKEN = 275,
-     COMPARACION_DIFERENTE_TOKEN = 276,
-     OPERADOR_MENOR_TOKEN = 277,
-     OPERADOR_MAYOR_TOKEN = 278,
-     OPERADOR_MENOR_IGUAL_TOKEN = 279,
-     OPERADOR_MAYOR_IGUAL_TOKEN = 280,
-     PARENTESIS_IZQ_TOKEN = 281,
-     PARENTESIS_DER_TOKEN = 282,
-     LLAVE_IZQ_TOKEN = 283,
-     LLAVE_DER_TOKEN = 284,
-     PUNTO_COMA_TOKEN = 285,
-     COMA_TOKEN = 286,
-     PUNTOS_SUSPENSIVOS_TOKEN = 287,
-     UNARY_MINUS_PREC = 288,
-     THEN = 289
+     PRINT_TOKEN = 270,
+     ASIGNACION_TOKEN = 271,
+     OPERADOR_SUMA_TOKEN = 272,
+     OPERADOR_RESTA_TOKEN = 273,
+     OPERADOR_MULTIPLICACION_TOKEN = 274,
+     OPERADOR_DIVISION_TOKEN = 275,
+     COMPARACION_IGUAL_TOKEN = 276,
+     COMPARACION_DIFERENTE_TOKEN = 277,
+     OPERADOR_MENOR_TOKEN = 278,
+     OPERADOR_MAYOR_TOKEN = 279,
+     OPERADOR_MENOR_IGUAL_TOKEN = 280,
+     OPERADOR_MAYOR_IGUAL_TOKEN = 281,
+     PARENTESIS_IZQ_TOKEN = 282,
+     PARENTESIS_DER_TOKEN = 283,
+     LLAVE_IZQ_TOKEN = 284,
+     LLAVE_DER_TOKEN = 285,
+     PUNTO_COMA_TOKEN = 286,
+     COMA_TOKEN = 287,
+     PUNTOS_SUSPENSIVOS_TOKEN = 288,
+     UNARY_MINUS_PREC = 289,
+     THEN = 290
    };
 #endif
 
@@ -81,16 +82,15 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 18 "Analizador_sintactico.y"
+#line 107 "analizador_sintactico.y"
 
-    char *sval; // Para identificadores, constantes string
-     int ival; // Para enteros, si los conviertes 
-    // double dval; // Para flotantes 
+    char *sval; // Para identificadores, strings literales
+    int ival;   // Para los valores de las expresiones enteras
 
 
 
 /* Line 1676 of yacc.c  */
-#line 94 "Analizador_sintactico.tab.h"
+#line 94 "analizador_sintactico.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
