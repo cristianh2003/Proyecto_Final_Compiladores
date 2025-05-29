@@ -81,7 +81,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 17 "Analizador_sintactico.y"
+#line 18 "Analizador_sintactico.y"
 
     char *sval; // Para identificadores, constantes string
      int ival; // Para enteros, si los conviertes 

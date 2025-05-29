@@ -13,7 +13,7 @@ COMENTARIO_BLOQUE  "/*"([^*]|\*+[^*/])*\*+"/"
 IDENTIFICADOR_PATRON {LETRA}({LETRA}|{DIGITO})*
 CONSTANTE_ENTERA_PATRON (0|[1-9]{DIGITO}*)
 CONSTANTE_FLOTANTE_PATRON ({DIGITO}+\.{DIGITO}*([eE][+-]?{DIGITO}+)? | {DIGITO}*\.{DIGITO}+([eE][+-]?{DIGITO}+)? | {DIGITO}+[eE][+-]?{DIGITO}+)
-CONSTANTE_CARACTER_PATRON \'([^'\\]|\\.)\' /* Permite secuencias de escape simples como '\n', '\'' */
+CONSTANTE_CARACTER_PATRON \'([^'\\]|\\.)\'
 STRING_LITERAL_PATRON \"([^"\\]|\\.)*\"
 
 
@@ -63,7 +63,6 @@ STRING_LITERAL_PATRON \"([^"\\]|\\.)*\"
     yylval.sval = strdup(yytext);
     return CONSTANTE_ENTERA_TOKEN;
 }
-
 
 {CONSTANTE_CARACTER_PATRON} {
     yylval.sval = strdup(yytext);

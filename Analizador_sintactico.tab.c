@@ -77,11 +77,12 @@
 int yylex(void);
 void yyerror(const char *s);
 extern char *yytext; // Para acceder al texto del token si es necesario
-// extern int yylineno; // Para número de línea
+extern int yylineno; // Para número de línea
+extern FILE *yyin;
 
 
 /* Line 189 of yacc.c  */
-#line 85 "Analizador_sintactico.tab.c"
+#line 86 "Analizador_sintactico.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -150,7 +151,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 17 "Analizador_sintactico.y"
+#line 18 "Analizador_sintactico.y"
 
     char *sval; // Para identificadores, constantes string
      int ival; // Para enteros, si los conviertes 
@@ -159,7 +160,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 163 "Analizador_sintactico.tab.c"
+#line 164 "Analizador_sintactico.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -171,7 +172,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 175 "Analizador_sintactico.tab.c"
+#line 176 "Analizador_sintactico.tab.c"
 
 #ifdef short
 # undef short
@@ -486,15 +487,15 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    58,    58,    61,    63,    67,    68,    72,    73,    77,
-      80,    82,    86,    87,    91,    92,    96,    99,   101,   106,
-     109,   111,   112,   116,   117,   118,   122,   123,   127,   128,
-     132,   135,   137,   141,   142,   146,   147,   154,   155,   156,
-     157,   158,   162,   165,   167,   171,   175,   176,   180,   184,
-     190,   195,   196,   200,   204,   209,   214,   215,   216,   220,
-     221,   222,   223,   224,   228,   229,   230,   234,   235,   236,
-     240,   241,   242,   247,   248,   253,   254,   255,   259,   260,
-     261,   262,   265,   267,   271,   272
+       0,    59,    59,    62,    64,    68,    69,    73,    74,    78,
+      81,    83,    87,    88,    92,    93,    97,   100,   102,   107,
+     110,   112,   113,   117,   118,   119,   123,   124,   128,   129,
+     133,   136,   138,   142,   143,   147,   148,   155,   156,   157,
+     158,   159,   163,   166,   168,   172,   176,   177,   181,   185,
+     191,   196,   197,   201,   205,   210,   215,   216,   217,   221,
+     222,   223,   224,   225,   229,   230,   231,   235,   236,   237,
+     241,   242,   243,   248,   249,   254,   255,   256,   260,   261,
+     262,   263,   266,   268,   272,   273
 };
 #endif
 
@@ -1502,7 +1503,7 @@ yyreduce:
       
 
 /* Line 1455 of yacc.c  */
-#line 1506 "Analizador_sintactico.tab.c"
+#line 1507 "Analizador_sintactico.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1714,7 +1715,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 276 "Analizador_sintactico.y"
+#line 277 "Analizador_sintactico.y"
 
 void yyerror(const char *s) {
     fprintf(stderr, "Error Sintactico: %s cerca de '%s'\n", s, yytext);

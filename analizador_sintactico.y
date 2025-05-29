@@ -6,7 +6,8 @@
 int yylex(void);
 void yyerror(const char *s);
 extern char *yytext; // Para acceder al texto del token si es necesario
-// extern int yylineno; // Para número de línea
+extern int yylineno; // Para número de línea
+extern FILE *yyin;
 %}
 
 /* 
