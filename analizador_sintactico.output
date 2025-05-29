@@ -1,10 +1,10 @@
 Terminals unused in grammar
 
    CONSTANTE_CARACTER_TOKEN
+   STRING_LITERAL_TOKEN
 
 
-Estado 24 conflictos: 1 desplazamiento(s)/reducción(ones)
-Estado 73 conflictos: 1 reducción(ones)/reducción(ones)
+Estado 83 conflictos: 1 reducción(ones)/reducción(ones)
 
 
 Gramática
@@ -53,146 +53,127 @@ Gramática
    26                          | especificador_tipo
    27                          | PUNTOS_SUSPENSIVOS_TOKEN
 
-   28 definicion_funcion: especificador_tipo declarador_con_tipo PARENTESIS_IZQ_TOKEN contenido_parametros_funcion PARENTESIS_DER_TOKEN cuerpo_funcion
+   28 definicion_funcion: especificador_tipo declarador_con_tipo cuerpo_funcion
 
-   29 contenido_parametros_funcion: /* vacío */
-   30                             | VOID_TOKEN
-   31                             | lista_real_parametros
+   29 especificador_tipo: VOID_TOKEN
+   30                   | CHAR_TOKEN
+   31                   | INT_TOKEN
 
-   32 especificador_tipo: VOID_TOKEN
-   33                   | CHAR_TOKEN
-   34                   | INT_TOKEN
+   32 $@2: /* vacío */
 
-   35 lista_real_parametros: param_declaracion
-   36                      | lista_real_parametros COMA_TOKEN param_declaracion
+   33 cuerpo_funcion: LLAVE_IZQ_TOKEN $@2 lista_elementos_bloque_opc LLAVE_DER_TOKEN
 
-   37 param_declaracion: especificador_tipo declarador_con_tipo
+   34 lista_elementos_bloque_opc: /* vacío */
+   35                           | lista_elementos_bloque
 
-   38 $@2: /* vacío */
+   36 lista_elementos_bloque: elemento_bloque
+   37                       | lista_elementos_bloque elemento_bloque
 
-   39 cuerpo_funcion: LLAVE_IZQ_TOKEN $@2 lista_elementos_bloque_opc LLAVE_DER_TOKEN
+   38 elemento_bloque: declaracion_global
+   39                | sentencia
 
-   40 lista_elementos_bloque_opc: /* vacío */
-   41                           | lista_elementos_bloque
+   40 sentencia: sentencia_expresion
+   41          | sentencia_compuesta
+   42          | sentencia_seleccion
+   43          | sentencia_iteracion
+   44          | sentencia_salto
 
-   42 lista_elementos_bloque: elemento_bloque
-   43                       | lista_elementos_bloque elemento_bloque
+   45 sentencia_expresion: expresion_opc PUNTO_COMA_TOKEN
 
-   44 elemento_bloque: declaracion_global
-   45                | sentencia
+   46 expresion_opc: /* vacío */
+   47              | expresion
 
-   46 sentencia: sentencia_expresion
-   47          | sentencia_compuesta
-   48          | sentencia_seleccion
-   49          | sentencia_iteracion
-   50          | sentencia_salto
+   48 sentencia_compuesta: cuerpo_funcion
 
-   51 sentencia_expresion: expresion_opc PUNTO_COMA_TOKEN
+   49 sentencia_seleccion: if_condition_setup sentencia
 
-   52 expresion_opc: /* vacío */
-   53              | expresion
+   50 $@3: /* vacío */
 
-   54 sentencia_compuesta: cuerpo_funcion
+   51 sentencia_seleccion: if_condition_setup sentencia ELSE_TOKEN $@3 sentencia
 
-   55 sentencia_seleccion: if_condition_setup sentencia
+   52 if_condition_setup: IF_TOKEN PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN
 
-   56 $@3: /* vacío */
+   53 sentencia_iteracion: WHILE_TOKEN PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN sentencia
 
-   57 sentencia_seleccion: if_condition_setup sentencia ELSE_TOKEN $@3 sentencia
+   54 sentencia_salto: RETURN_TOKEN expresion_opc PUNTO_COMA_TOKEN
 
-   58 if_condition_setup: IF_TOKEN PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN
+   55 expresion: expresion_asignacion
 
-   59 sentencia_iteracion: WHILE_TOKEN PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN sentencia
+   56 expresion_asignacion: expresion_condicional
+   57                     | primaria ASIGNACION_TOKEN expresion_asignacion
 
-   60 sentencia_salto: RETURN_TOKEN expresion_opc PUNTO_COMA_TOKEN
+   58 expresion_condicional: expresion_logica_or
 
-   61 expresion: expresion_asignacion
+   59 expresion_logica_or: expresion_logica_and
 
-   62 expresion_asignacion: expresion_condicional
-   63                     | primaria ASIGNACION_TOKEN expresion_asignacion
+   60 expresion_logica_and: expresion_igualdad
 
-   64 expresion_condicional: expresion_logica_or
+   61 expresion_igualdad: expresion_relacional
+   62                   | expresion_igualdad COMPARACION_IGUAL_TOKEN expresion_relacional
+   63                   | expresion_igualdad COMPARACION_DIFERENTE_TOKEN expresion_relacional
 
-   65 expresion_logica_or: expresion_logica_and
+   64 expresion_relacional: expresion_aditiva
+   65                     | expresion_relacional OPERADOR_MENOR_TOKEN expresion_aditiva
+   66                     | expresion_relacional OPERADOR_MAYOR_TOKEN expresion_aditiva
+   67                     | expresion_relacional OPERADOR_MENOR_IGUAL_TOKEN expresion_aditiva
+   68                     | expresion_relacional OPERADOR_MAYOR_IGUAL_TOKEN expresion_aditiva
 
-   66 expresion_logica_and: expresion_igualdad
+   69 expresion_aditiva: expresion_multiplicativa
+   70                  | expresion_aditiva OPERADOR_SUMA_TOKEN expresion_multiplicativa
+   71                  | expresion_aditiva OPERADOR_RESTA_TOKEN expresion_multiplicativa
 
-   67 expresion_igualdad: expresion_relacional
-   68                   | expresion_igualdad COMPARACION_IGUAL_TOKEN expresion_relacional
-   69                   | expresion_igualdad COMPARACION_DIFERENTE_TOKEN expresion_relacional
+   72 expresion_multiplicativa: expresion_unaria
+   73                         | expresion_multiplicativa OPERADOR_MULTIPLICACION_TOKEN expresion_unaria
+   74                         | expresion_multiplicativa OPERADOR_DIVISION_TOKEN expresion_unaria
 
-   70 expresion_relacional: expresion_aditiva
-   71                     | expresion_relacional OPERADOR_MENOR_TOKEN expresion_aditiva
-   72                     | expresion_relacional OPERADOR_MAYOR_TOKEN expresion_aditiva
-   73                     | expresion_relacional OPERADOR_MENOR_IGUAL_TOKEN expresion_aditiva
-   74                     | expresion_relacional OPERADOR_MAYOR_IGUAL_TOKEN expresion_aditiva
+   75 expresion_unaria: expresion_postfix
+   76                 | OPERADOR_RESTA_TOKEN expresion_unaria
+   77                 | OPERADOR_SUMA_TOKEN expresion_unaria
 
-   75 expresion_aditiva: expresion_multiplicativa
-   76                  | expresion_aditiva OPERADOR_SUMA_TOKEN expresion_multiplicativa
-   77                  | expresion_aditiva OPERADOR_RESTA_TOKEN expresion_multiplicativa
+   78 expresion_postfix: primaria
+   79                  | IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN lista_argumentos_opc PARENTESIS_DER_TOKEN
 
-   78 expresion_multiplicativa: expresion_unaria
-   79                         | expresion_multiplicativa OPERADOR_MULTIPLICACION_TOKEN expresion_unaria
-   80                         | expresion_multiplicativa OPERADOR_DIVISION_TOKEN expresion_unaria
+   80 primaria: IDENTIFICADOR_TOKEN
+   81         | constante_entera_valor
+   82         | PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN
 
-   81 expresion_unaria: expresion_postfix
-   82                 | OPERADOR_RESTA_TOKEN expresion_unaria
-   83                 | OPERADOR_SUMA_TOKEN expresion_unaria
+   83 constante_entera_valor: CONSTANTE_ENTERA_TOKEN
 
-   84 expresion_postfix: primaria
-
-   85 $@4: /* vacío */
-
-   86 expresion_postfix: IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN $@4 lista_argumentos_opc PARENTESIS_DER_TOKEN
-
-   87 primaria: IDENTIFICADOR_TOKEN
-   88         | constante_entera_valor
-   89         | string_literal
-   90         | PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN
-
-   91 constante_entera_valor: CONSTANTE_ENTERA_TOKEN
-
-   92 string_literal: STRING_LITERAL_TOKEN
-
-   93 lista_argumentos_opc: /* vacío */
-   94                     | lista_argumentos
-
-   95 lista_argumentos: expresion_asignacion
-   96                 | lista_argumentos COMA_TOKEN expresion_asignacion
+   84 lista_argumentos_opc: /* vacío */
 
 
 Terminales con las reglas donde aparecen
 
 $end (0) 0
 error (256)
-IDENTIFICADOR_TOKEN (258) 15 16 86 87
-CONSTANTE_ENTERA_TOKEN (259) 91
+IDENTIFICADOR_TOKEN (258) 15 16 79 80
+CONSTANTE_ENTERA_TOKEN (259) 83
 CONSTANTE_CARACTER_TOKEN (260)
-STRING_LITERAL_TOKEN (261) 92
-INT_TOKEN (262) 34
-CHAR_TOKEN (263) 33
-VOID_TOKEN (264) 21 30 32
-IF_TOKEN (265) 58
-ELSE_TOKEN (266) 57
-WHILE_TOKEN (267) 59
-RETURN_TOKEN (268) 60
-ASIGNACION_TOKEN (269) 14 63
-OPERADOR_SUMA_TOKEN (270) 76 83
-OPERADOR_RESTA_TOKEN (271) 77 82
-OPERADOR_MULTIPLICACION_TOKEN (272) 19 79
-OPERADOR_DIVISION_TOKEN (273) 80
-COMPARACION_IGUAL_TOKEN (274) 68
-COMPARACION_DIFERENTE_TOKEN (275) 69
-OPERADOR_MENOR_TOKEN (276) 71
-OPERADOR_MAYOR_TOKEN (277) 72
-OPERADOR_MENOR_IGUAL_TOKEN (278) 73
-OPERADOR_MAYOR_IGUAL_TOKEN (279) 74
-PARENTESIS_IZQ_TOKEN (280) 16 28 58 59 86 90
-PARENTESIS_DER_TOKEN (281) 16 28 58 59 86 90
-LLAVE_IZQ_TOKEN (282) 39
-LLAVE_DER_TOKEN (283) 39
-PUNTO_COMA_TOKEN (284) 8 51 60
-COMA_TOKEN (285) 12 24 36 96
+STRING_LITERAL_TOKEN (261)
+INT_TOKEN (262) 31
+CHAR_TOKEN (263) 30
+VOID_TOKEN (264) 21 29
+IF_TOKEN (265) 52
+ELSE_TOKEN (266) 51
+WHILE_TOKEN (267) 53
+RETURN_TOKEN (268) 54
+ASIGNACION_TOKEN (269) 14 57
+OPERADOR_SUMA_TOKEN (270) 70 77
+OPERADOR_RESTA_TOKEN (271) 71 76
+OPERADOR_MULTIPLICACION_TOKEN (272) 19 73
+OPERADOR_DIVISION_TOKEN (273) 74
+COMPARACION_IGUAL_TOKEN (274) 62
+COMPARACION_DIFERENTE_TOKEN (275) 63
+OPERADOR_MENOR_TOKEN (276) 65
+OPERADOR_MAYOR_TOKEN (277) 66
+OPERADOR_MENOR_IGUAL_TOKEN (278) 67
+OPERADOR_MAYOR_IGUAL_TOKEN (279) 68
+PARENTESIS_IZQ_TOKEN (280) 16 52 53 79 82
+PARENTESIS_DER_TOKEN (281) 16 52 53 79 82
+LLAVE_IZQ_TOKEN (282) 33
+LLAVE_DER_TOKEN (283) 33
+PUNTO_COMA_TOKEN (284) 8 45 54
+COMA_TOKEN (285) 12 24
 PUNTOS_SUSPENSIVOS_TOKEN (286) 27
 UNARY_MINUS_PREC (287)
 IFX_NO_ELSE (288)
@@ -211,7 +192,7 @@ lista_declaraciones_externas (37)
 declaracion_externa (38)
     en la izquierda: 6 7, en la derecha: 4 5
 declaracion_global (39)
-    en la izquierda: 8, en la derecha: 7 44
+    en la izquierda: 8, en la derecha: 7 38
 lista_init_declaradores_opc (40)
     en la izquierda: 9 10, en la derecha: 8
 lista_init_declaradores (41)
@@ -219,7 +200,7 @@ lista_init_declaradores (41)
 init_declarador (42)
     en la izquierda: 13 14, en la derecha: 11 12
 declarador_con_tipo (43)
-    en la izquierda: 15 16, en la derecha: 13 14 25 28 37
+    en la izquierda: 15 16, en la derecha: 13 14 25 28
 punteros_opc (44)
     en la izquierda: 17 19, en la derecha: 15 16 19
 $@1 (45)
@@ -232,77 +213,65 @@ param_declaracion_funcion (48)
     en la izquierda: 25 26 27, en la derecha: 23 24
 definicion_funcion (49)
     en la izquierda: 28, en la derecha: 6
-contenido_parametros_funcion (50)
-    en la izquierda: 29 30 31, en la derecha: 28
-especificador_tipo (51)
-    en la izquierda: 32 33 34, en la derecha: 8 25 26 28 37
-lista_real_parametros (52)
-    en la izquierda: 35 36, en la derecha: 31 36
-param_declaracion (53)
-    en la izquierda: 37, en la derecha: 35 36
-cuerpo_funcion (54)
-    en la izquierda: 39, en la derecha: 28 54
-$@2 (55)
-    en la izquierda: 38, en la derecha: 39
-lista_elementos_bloque_opc (56)
-    en la izquierda: 40 41, en la derecha: 39
-lista_elementos_bloque (57)
-    en la izquierda: 42 43, en la derecha: 41 43
-elemento_bloque (58)
-    en la izquierda: 44 45, en la derecha: 42 43
-sentencia (59)
-    en la izquierda: 46 47 48 49 50, en la derecha: 45 55 57 59
-sentencia_expresion (60)
-    en la izquierda: 51, en la derecha: 46
-expresion_opc (61)
-    en la izquierda: 52 53, en la derecha: 51 60
-sentencia_compuesta (62)
-    en la izquierda: 54, en la derecha: 47
-sentencia_seleccion (63)
-    en la izquierda: 55 57, en la derecha: 48
-$@3 (64)
-    en la izquierda: 56, en la derecha: 57
-if_condition_setup (65)
-    en la izquierda: 58, en la derecha: 55 57
-sentencia_iteracion (66)
-    en la izquierda: 59, en la derecha: 49
-sentencia_salto (67)
-    en la izquierda: 60, en la derecha: 50
-expresion (68)
-    en la izquierda: 61, en la derecha: 53 58 59 90
-expresion_asignacion (69)
-    en la izquierda: 62 63, en la derecha: 14 61 63 95 96
-expresion_condicional (70)
-    en la izquierda: 64, en la derecha: 62
-expresion_logica_or (71)
-    en la izquierda: 65, en la derecha: 64
-expresion_logica_and (72)
-    en la izquierda: 66, en la derecha: 65
-expresion_igualdad (73)
-    en la izquierda: 67 68 69, en la derecha: 66 68 69
-expresion_relacional (74)
-    en la izquierda: 70 71 72 73 74, en la derecha: 67 68 69 71 72
-    73 74
-expresion_aditiva (75)
-    en la izquierda: 75 76 77, en la derecha: 70 71 72 73 74 76 77
-expresion_multiplicativa (76)
-    en la izquierda: 78 79 80, en la derecha: 75 76 77 79 80
-expresion_unaria (77)
-    en la izquierda: 81 82 83, en la derecha: 78 79 80 82 83
-expresion_postfix (78)
-    en la izquierda: 84 86, en la derecha: 81
-$@4 (79)
-    en la izquierda: 85, en la derecha: 86
-primaria (80)
-    en la izquierda: 87 88 89 90, en la derecha: 63 84
-constante_entera_valor (81)
-    en la izquierda: 91, en la derecha: 88
-string_literal (82)
-    en la izquierda: 92, en la derecha: 89
-lista_argumentos_opc (83)
-    en la izquierda: 93 94, en la derecha: 86
-lista_argumentos (84)
-    en la izquierda: 95 96, en la derecha: 94 96
+especificador_tipo (50)
+    en la izquierda: 29 30 31, en la derecha: 8 25 26 28
+cuerpo_funcion (51)
+    en la izquierda: 33, en la derecha: 28 48
+$@2 (52)
+    en la izquierda: 32, en la derecha: 33
+lista_elementos_bloque_opc (53)
+    en la izquierda: 34 35, en la derecha: 33
+lista_elementos_bloque (54)
+    en la izquierda: 36 37, en la derecha: 35 37
+elemento_bloque (55)
+    en la izquierda: 38 39, en la derecha: 36 37
+sentencia (56)
+    en la izquierda: 40 41 42 43 44, en la derecha: 39 49 51 53
+sentencia_expresion (57)
+    en la izquierda: 45, en la derecha: 40
+expresion_opc (58)
+    en la izquierda: 46 47, en la derecha: 45 54
+sentencia_compuesta (59)
+    en la izquierda: 48, en la derecha: 41
+sentencia_seleccion (60)
+    en la izquierda: 49 51, en la derecha: 42
+$@3 (61)
+    en la izquierda: 50, en la derecha: 51
+if_condition_setup (62)
+    en la izquierda: 52, en la derecha: 49 51
+sentencia_iteracion (63)
+    en la izquierda: 53, en la derecha: 43
+sentencia_salto (64)
+    en la izquierda: 54, en la derecha: 44
+expresion (65)
+    en la izquierda: 55, en la derecha: 47 52 53 82
+expresion_asignacion (66)
+    en la izquierda: 56 57, en la derecha: 14 55 57
+expresion_condicional (67)
+    en la izquierda: 58, en la derecha: 56
+expresion_logica_or (68)
+    en la izquierda: 59, en la derecha: 58
+expresion_logica_and (69)
+    en la izquierda: 60, en la derecha: 59
+expresion_igualdad (70)
+    en la izquierda: 61 62 63, en la derecha: 60 62 63
+expresion_relacional (71)
+    en la izquierda: 64 65 66 67 68, en la derecha: 61 62 63 65 66
+    67 68
+expresion_aditiva (72)
+    en la izquierda: 69 70 71, en la derecha: 64 65 66 67 68 70 71
+expresion_multiplicativa (73)
+    en la izquierda: 72 73 74, en la derecha: 69 70 71 73 74
+expresion_unaria (74)
+    en la izquierda: 75 76 77, en la derecha: 72 73 74 76 77
+expresion_postfix (75)
+    en la izquierda: 78 79, en la derecha: 75
+primaria (76)
+    en la izquierda: 80 81 82, en la derecha: 57 78
+constante_entera_valor (77)
+    en la izquierda: 83, en la derecha: 81
+lista_argumentos_opc (78)
+    en la izquierda: 84, en la derecha: 79
 
 
 estado 0
@@ -326,23 +295,23 @@ estado 0
 
 estado 1
 
-   34 especificador_tipo: INT_TOKEN .
+   31 especificador_tipo: INT_TOKEN .
 
-    $default  reduce usando la regla 34 (especificador_tipo)
+    $default  reduce usando la regla 31 (especificador_tipo)
 
 
 estado 2
 
-   33 especificador_tipo: CHAR_TOKEN .
+   30 especificador_tipo: CHAR_TOKEN .
 
-    $default  reduce usando la regla 33 (especificador_tipo)
+    $default  reduce usando la regla 30 (especificador_tipo)
 
 
 estado 3
 
-   32 especificador_tipo: VOID_TOKEN .
+   29 especificador_tipo: VOID_TOKEN .
 
-    $default  reduce usando la regla 32 (especificador_tipo)
+    $default  reduce usando la regla 29 (especificador_tipo)
 
 
 estado 4
@@ -400,7 +369,7 @@ estado 9
 estado 10
 
     8 declaracion_global: especificador_tipo . lista_init_declaradores_opc PUNTO_COMA_TOKEN
-   28 definicion_funcion: especificador_tipo . declarador_con_tipo PARENTESIS_IZQ_TOKEN contenido_parametros_funcion PARENTESIS_DER_TOKEN cuerpo_funcion
+   28 definicion_funcion: especificador_tipo . declarador_con_tipo cuerpo_funcion
 
     OPERADOR_MULTIPLICACION_TOKEN  desplazar e ir al estado 13
 
@@ -465,12 +434,14 @@ estado 17
 
    13 init_declarador: declarador_con_tipo .
    14                | declarador_con_tipo . ASIGNACION_TOKEN expresion_asignacion
-   28 definicion_funcion: especificador_tipo declarador_con_tipo . PARENTESIS_IZQ_TOKEN contenido_parametros_funcion PARENTESIS_DER_TOKEN cuerpo_funcion
+   28 definicion_funcion: especificador_tipo declarador_con_tipo . cuerpo_funcion
 
-    ASIGNACION_TOKEN      desplazar e ir al estado 22
-    PARENTESIS_IZQ_TOKEN  desplazar e ir al estado 23
+    ASIGNACION_TOKEN  desplazar e ir al estado 22
+    LLAVE_IZQ_TOKEN   desplazar e ir al estado 23
 
     $default  reduce usando la regla 13 (init_declarador)
+
+    cuerpo_funcion  ir al estado 24
 
 
 estado 18
@@ -478,7 +449,7 @@ estado 18
    15 declarador_con_tipo: punteros_opc . IDENTIFICADOR_TOKEN
    16                    | punteros_opc . IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN decl_parametros_funcion PARENTESIS_DER_TOKEN
 
-    IDENTIFICADOR_TOKEN  desplazar e ir al estado 24
+    IDENTIFICADOR_TOKEN  desplazar e ir al estado 25
 
 
 estado 19
@@ -489,7 +460,7 @@ estado 19
 
     $default  reduce usando la regla 17 (punteros_opc)
 
-    punteros_opc  ir al estado 25
+    punteros_opc  ir al estado 26
 
 
 estado 20
@@ -507,8 +478,8 @@ estado 21
 
     $default  reduce usando la regla 17 (punteros_opc)
 
-    init_declarador      ir al estado 26
-    declarador_con_tipo  ir al estado 27
+    init_declarador      ir al estado 27
+    declarador_con_tipo  ir al estado 28
     punteros_opc         ir al estado 18
 
 
@@ -516,9 +487,8 @@ estado 22
 
    14 init_declarador: declarador_con_tipo ASIGNACION_TOKEN . expresion_asignacion
 
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
     OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
     OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
     PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
@@ -535,51 +505,49 @@ estado 22
     expresion_postfix         ir al estado 43
     primaria                  ir al estado 44
     constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
 
 
 estado 23
 
-   28 definicion_funcion: especificador_tipo declarador_con_tipo PARENTESIS_IZQ_TOKEN . contenido_parametros_funcion PARENTESIS_DER_TOKEN cuerpo_funcion
+   33 cuerpo_funcion: LLAVE_IZQ_TOKEN . $@2 lista_elementos_bloque_opc LLAVE_DER_TOKEN
 
-    INT_TOKEN   desplazar e ir al estado 1
-    CHAR_TOKEN  desplazar e ir al estado 2
-    VOID_TOKEN  desplazar e ir al estado 47
+    $default  reduce usando la regla 32 ($@2)
 
-    $default  reduce usando la regla 29 (contenido_parametros_funcion)
-
-    contenido_parametros_funcion  ir al estado 48
-    especificador_tipo            ir al estado 49
-    lista_real_parametros         ir al estado 50
-    param_declaracion             ir al estado 51
+    $@2  ir al estado 46
 
 
 estado 24
 
-   15 declarador_con_tipo: punteros_opc IDENTIFICADOR_TOKEN .
-   16                    | punteros_opc IDENTIFICADOR_TOKEN . PARENTESIS_IZQ_TOKEN decl_parametros_funcion PARENTESIS_DER_TOKEN
+   28 definicion_funcion: especificador_tipo declarador_con_tipo cuerpo_funcion .
 
-    PARENTESIS_IZQ_TOKEN  desplazar e ir al estado 52
-
-    PARENTESIS_IZQ_TOKEN  [reduce usando la regla 15 (declarador_con_tipo)]
-    $default              reduce usando la regla 15 (declarador_con_tipo)
+    $default  reduce usando la regla 28 (definicion_funcion)
 
 
 estado 25
+
+   15 declarador_con_tipo: punteros_opc IDENTIFICADOR_TOKEN .
+   16                    | punteros_opc IDENTIFICADOR_TOKEN . PARENTESIS_IZQ_TOKEN decl_parametros_funcion PARENTESIS_DER_TOKEN
+
+    PARENTESIS_IZQ_TOKEN  desplazar e ir al estado 47
+
+    $default  reduce usando la regla 15 (declarador_con_tipo)
+
+
+estado 26
 
    19 punteros_opc: OPERADOR_MULTIPLICACION_TOKEN $@1 punteros_opc .
 
     $default  reduce usando la regla 19 (punteros_opc)
 
 
-estado 26
+estado 27
 
    12 lista_init_declaradores: lista_init_declaradores COMA_TOKEN init_declarador .
 
     $default  reduce usando la regla 12 (lista_init_declaradores)
 
 
-estado 27
+estado 28
 
    13 init_declarador: declarador_con_tipo .
    14                | declarador_con_tipo . ASIGNACION_TOKEN expresion_asignacion
@@ -589,79 +557,67 @@ estado 27
     $default  reduce usando la regla 13 (init_declarador)
 
 
-estado 28
-
-   86 expresion_postfix: IDENTIFICADOR_TOKEN . PARENTESIS_IZQ_TOKEN $@4 lista_argumentos_opc PARENTESIS_DER_TOKEN
-   87 primaria: IDENTIFICADOR_TOKEN .
-
-    PARENTESIS_IZQ_TOKEN  desplazar e ir al estado 53
-
-    $default  reduce usando la regla 87 (primaria)
-
-
 estado 29
 
-   91 constante_entera_valor: CONSTANTE_ENTERA_TOKEN .
+   79 expresion_postfix: IDENTIFICADOR_TOKEN . PARENTESIS_IZQ_TOKEN lista_argumentos_opc PARENTESIS_DER_TOKEN
+   80 primaria: IDENTIFICADOR_TOKEN .
 
-    $default  reduce usando la regla 91 (constante_entera_valor)
+    PARENTESIS_IZQ_TOKEN  desplazar e ir al estado 48
+
+    $default  reduce usando la regla 80 (primaria)
 
 
 estado 30
 
-   92 string_literal: STRING_LITERAL_TOKEN .
+   83 constante_entera_valor: CONSTANTE_ENTERA_TOKEN .
 
-    $default  reduce usando la regla 92 (string_literal)
+    $default  reduce usando la regla 83 (constante_entera_valor)
 
 
 estado 31
 
-   83 expresion_unaria: OPERADOR_SUMA_TOKEN . expresion_unaria
+   77 expresion_unaria: OPERADOR_SUMA_TOKEN . expresion_unaria
 
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
     OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
     OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
     PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
 
-    expresion_unaria        ir al estado 54
+    expresion_unaria        ir al estado 49
     expresion_postfix       ir al estado 43
-    primaria                ir al estado 55
+    primaria                ir al estado 50
     constante_entera_valor  ir al estado 45
-    string_literal          ir al estado 46
 
 
 estado 32
 
-   82 expresion_unaria: OPERADOR_RESTA_TOKEN . expresion_unaria
+   76 expresion_unaria: OPERADOR_RESTA_TOKEN . expresion_unaria
 
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
     OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
     OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
     PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
 
-    expresion_unaria        ir al estado 56
+    expresion_unaria        ir al estado 51
     expresion_postfix       ir al estado 43
-    primaria                ir al estado 55
+    primaria                ir al estado 50
     constante_entera_valor  ir al estado 45
-    string_literal          ir al estado 46
 
 
 estado 33
 
-   90 primaria: PARENTESIS_IZQ_TOKEN . expresion PARENTESIS_DER_TOKEN
+   82 primaria: PARENTESIS_IZQ_TOKEN . expresion PARENTESIS_DER_TOKEN
 
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
     OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
     OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
     PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
 
-    expresion                 ir al estado 57
-    expresion_asignacion      ir al estado 58
+    expresion                 ir al estado 52
+    expresion_asignacion      ir al estado 53
     expresion_condicional     ir al estado 35
     expresion_logica_or       ir al estado 36
     expresion_logica_and      ir al estado 37
@@ -673,7 +629,6 @@ estado 33
     expresion_postfix         ir al estado 43
     primaria                  ir al estado 44
     constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
 
 
 estado 34
@@ -685,799 +640,144 @@ estado 34
 
 estado 35
 
-   62 expresion_asignacion: expresion_condicional .
+   56 expresion_asignacion: expresion_condicional .
 
-    $default  reduce usando la regla 62 (expresion_asignacion)
+    $default  reduce usando la regla 56 (expresion_asignacion)
 
 
 estado 36
 
-   64 expresion_condicional: expresion_logica_or .
+   58 expresion_condicional: expresion_logica_or .
 
-    $default  reduce usando la regla 64 (expresion_condicional)
+    $default  reduce usando la regla 58 (expresion_condicional)
 
 
 estado 37
 
-   65 expresion_logica_or: expresion_logica_and .
+   59 expresion_logica_or: expresion_logica_and .
 
-    $default  reduce usando la regla 65 (expresion_logica_or)
+    $default  reduce usando la regla 59 (expresion_logica_or)
 
 
 estado 38
 
-   66 expresion_logica_and: expresion_igualdad .
-   68 expresion_igualdad: expresion_igualdad . COMPARACION_IGUAL_TOKEN expresion_relacional
-   69                   | expresion_igualdad . COMPARACION_DIFERENTE_TOKEN expresion_relacional
+   60 expresion_logica_and: expresion_igualdad .
+   62 expresion_igualdad: expresion_igualdad . COMPARACION_IGUAL_TOKEN expresion_relacional
+   63                   | expresion_igualdad . COMPARACION_DIFERENTE_TOKEN expresion_relacional
 
-    COMPARACION_IGUAL_TOKEN      desplazar e ir al estado 59
-    COMPARACION_DIFERENTE_TOKEN  desplazar e ir al estado 60
+    COMPARACION_IGUAL_TOKEN      desplazar e ir al estado 54
+    COMPARACION_DIFERENTE_TOKEN  desplazar e ir al estado 55
 
-    $default  reduce usando la regla 66 (expresion_logica_and)
+    $default  reduce usando la regla 60 (expresion_logica_and)
 
 
 estado 39
 
-   67 expresion_igualdad: expresion_relacional .
-   71 expresion_relacional: expresion_relacional . OPERADOR_MENOR_TOKEN expresion_aditiva
-   72                     | expresion_relacional . OPERADOR_MAYOR_TOKEN expresion_aditiva
-   73                     | expresion_relacional . OPERADOR_MENOR_IGUAL_TOKEN expresion_aditiva
-   74                     | expresion_relacional . OPERADOR_MAYOR_IGUAL_TOKEN expresion_aditiva
+   61 expresion_igualdad: expresion_relacional .
+   65 expresion_relacional: expresion_relacional . OPERADOR_MENOR_TOKEN expresion_aditiva
+   66                     | expresion_relacional . OPERADOR_MAYOR_TOKEN expresion_aditiva
+   67                     | expresion_relacional . OPERADOR_MENOR_IGUAL_TOKEN expresion_aditiva
+   68                     | expresion_relacional . OPERADOR_MAYOR_IGUAL_TOKEN expresion_aditiva
 
-    OPERADOR_MENOR_TOKEN        desplazar e ir al estado 61
-    OPERADOR_MAYOR_TOKEN        desplazar e ir al estado 62
-    OPERADOR_MENOR_IGUAL_TOKEN  desplazar e ir al estado 63
-    OPERADOR_MAYOR_IGUAL_TOKEN  desplazar e ir al estado 64
+    OPERADOR_MENOR_TOKEN        desplazar e ir al estado 56
+    OPERADOR_MAYOR_TOKEN        desplazar e ir al estado 57
+    OPERADOR_MENOR_IGUAL_TOKEN  desplazar e ir al estado 58
+    OPERADOR_MAYOR_IGUAL_TOKEN  desplazar e ir al estado 59
 
-    $default  reduce usando la regla 67 (expresion_igualdad)
+    $default  reduce usando la regla 61 (expresion_igualdad)
 
 
 estado 40
 
-   70 expresion_relacional: expresion_aditiva .
-   76 expresion_aditiva: expresion_aditiva . OPERADOR_SUMA_TOKEN expresion_multiplicativa
-   77                  | expresion_aditiva . OPERADOR_RESTA_TOKEN expresion_multiplicativa
+   64 expresion_relacional: expresion_aditiva .
+   70 expresion_aditiva: expresion_aditiva . OPERADOR_SUMA_TOKEN expresion_multiplicativa
+   71                  | expresion_aditiva . OPERADOR_RESTA_TOKEN expresion_multiplicativa
 
-    OPERADOR_SUMA_TOKEN   desplazar e ir al estado 65
-    OPERADOR_RESTA_TOKEN  desplazar e ir al estado 66
+    OPERADOR_SUMA_TOKEN   desplazar e ir al estado 60
+    OPERADOR_RESTA_TOKEN  desplazar e ir al estado 61
 
-    $default  reduce usando la regla 70 (expresion_relacional)
+    $default  reduce usando la regla 64 (expresion_relacional)
 
 
 estado 41
 
-   75 expresion_aditiva: expresion_multiplicativa .
-   79 expresion_multiplicativa: expresion_multiplicativa . OPERADOR_MULTIPLICACION_TOKEN expresion_unaria
-   80                         | expresion_multiplicativa . OPERADOR_DIVISION_TOKEN expresion_unaria
+   69 expresion_aditiva: expresion_multiplicativa .
+   73 expresion_multiplicativa: expresion_multiplicativa . OPERADOR_MULTIPLICACION_TOKEN expresion_unaria
+   74                         | expresion_multiplicativa . OPERADOR_DIVISION_TOKEN expresion_unaria
 
-    OPERADOR_MULTIPLICACION_TOKEN  desplazar e ir al estado 67
-    OPERADOR_DIVISION_TOKEN        desplazar e ir al estado 68
+    OPERADOR_MULTIPLICACION_TOKEN  desplazar e ir al estado 62
+    OPERADOR_DIVISION_TOKEN        desplazar e ir al estado 63
 
-    $default  reduce usando la regla 75 (expresion_aditiva)
+    $default  reduce usando la regla 69 (expresion_aditiva)
 
 
 estado 42
 
-   78 expresion_multiplicativa: expresion_unaria .
+   72 expresion_multiplicativa: expresion_unaria .
 
-    $default  reduce usando la regla 78 (expresion_multiplicativa)
+    $default  reduce usando la regla 72 (expresion_multiplicativa)
 
 
 estado 43
 
-   81 expresion_unaria: expresion_postfix .
+   75 expresion_unaria: expresion_postfix .
 
-    $default  reduce usando la regla 81 (expresion_unaria)
+    $default  reduce usando la regla 75 (expresion_unaria)
 
 
 estado 44
 
-   63 expresion_asignacion: primaria . ASIGNACION_TOKEN expresion_asignacion
-   84 expresion_postfix: primaria .
+   57 expresion_asignacion: primaria . ASIGNACION_TOKEN expresion_asignacion
+   78 expresion_postfix: primaria .
 
-    ASIGNACION_TOKEN  desplazar e ir al estado 69
+    ASIGNACION_TOKEN  desplazar e ir al estado 64
 
-    $default  reduce usando la regla 84 (expresion_postfix)
+    $default  reduce usando la regla 78 (expresion_postfix)
 
 
 estado 45
 
-   88 primaria: constante_entera_valor .
+   81 primaria: constante_entera_valor .
 
-    $default  reduce usando la regla 88 (primaria)
+    $default  reduce usando la regla 81 (primaria)
 
 
 estado 46
 
-   89 primaria: string_literal .
+   33 cuerpo_funcion: LLAVE_IZQ_TOKEN $@2 . lista_elementos_bloque_opc LLAVE_DER_TOKEN
 
-    $default  reduce usando la regla 89 (primaria)
-
-
-estado 47
-
-   30 contenido_parametros_funcion: VOID_TOKEN .
-   32 especificador_tipo: VOID_TOKEN .
-
-    PARENTESIS_DER_TOKEN  reduce usando la regla 30 (contenido_parametros_funcion)
-    $default              reduce usando la regla 32 (especificador_tipo)
-
-
-estado 48
-
-   28 definicion_funcion: especificador_tipo declarador_con_tipo PARENTESIS_IZQ_TOKEN contenido_parametros_funcion . PARENTESIS_DER_TOKEN cuerpo_funcion
-
-    PARENTESIS_DER_TOKEN  desplazar e ir al estado 70
-
-
-estado 49
-
-   37 param_declaracion: especificador_tipo . declarador_con_tipo
-
-    OPERADOR_MULTIPLICACION_TOKEN  desplazar e ir al estado 13
-
-    $default  reduce usando la regla 17 (punteros_opc)
-
-    declarador_con_tipo  ir al estado 71
-    punteros_opc         ir al estado 18
-
-
-estado 50
-
-   31 contenido_parametros_funcion: lista_real_parametros .
-   36 lista_real_parametros: lista_real_parametros . COMA_TOKEN param_declaracion
-
-    COMA_TOKEN  desplazar e ir al estado 72
-
-    $default  reduce usando la regla 31 (contenido_parametros_funcion)
-
-
-estado 51
-
-   35 lista_real_parametros: param_declaracion .
-
-    $default  reduce usando la regla 35 (lista_real_parametros)
-
-
-estado 52
-
-   16 declarador_con_tipo: punteros_opc IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN . decl_parametros_funcion PARENTESIS_DER_TOKEN
-
-    INT_TOKEN                 desplazar e ir al estado 1
-    CHAR_TOKEN                desplazar e ir al estado 2
-    VOID_TOKEN                desplazar e ir al estado 73
-    PUNTOS_SUSPENSIVOS_TOKEN  desplazar e ir al estado 74
-
-    $default  reduce usando la regla 20 (decl_parametros_funcion)
-
-    decl_parametros_funcion     ir al estado 75
-    lista_real_parametros_decl  ir al estado 76
-    param_declaracion_funcion   ir al estado 77
-    especificador_tipo          ir al estado 78
-
-
-estado 53
-
-   86 expresion_postfix: IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN . $@4 lista_argumentos_opc PARENTESIS_DER_TOKEN
-
-    $default  reduce usando la regla 85 ($@4)
-
-    $@4  ir al estado 79
-
-
-estado 54
-
-   83 expresion_unaria: OPERADOR_SUMA_TOKEN expresion_unaria .
-
-    $default  reduce usando la regla 83 (expresion_unaria)
-
-
-estado 55
-
-   84 expresion_postfix: primaria .
-
-    $default  reduce usando la regla 84 (expresion_postfix)
-
-
-estado 56
-
-   82 expresion_unaria: OPERADOR_RESTA_TOKEN expresion_unaria .
-
-    $default  reduce usando la regla 82 (expresion_unaria)
-
-
-estado 57
-
-   90 primaria: PARENTESIS_IZQ_TOKEN expresion . PARENTESIS_DER_TOKEN
-
-    PARENTESIS_DER_TOKEN  desplazar e ir al estado 80
-
-
-estado 58
-
-   61 expresion: expresion_asignacion .
-
-    $default  reduce usando la regla 61 (expresion)
-
-
-estado 59
-
-   68 expresion_igualdad: expresion_igualdad COMPARACION_IGUAL_TOKEN . expresion_relacional
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion_relacional      ir al estado 81
-    expresion_aditiva         ir al estado 40
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 55
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 60
-
-   69 expresion_igualdad: expresion_igualdad COMPARACION_DIFERENTE_TOKEN . expresion_relacional
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion_relacional      ir al estado 82
-    expresion_aditiva         ir al estado 40
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 55
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 61
-
-   71 expresion_relacional: expresion_relacional OPERADOR_MENOR_TOKEN . expresion_aditiva
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion_aditiva         ir al estado 83
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 55
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 62
-
-   72 expresion_relacional: expresion_relacional OPERADOR_MAYOR_TOKEN . expresion_aditiva
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion_aditiva         ir al estado 84
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 55
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 63
-
-   73 expresion_relacional: expresion_relacional OPERADOR_MENOR_IGUAL_TOKEN . expresion_aditiva
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion_aditiva         ir al estado 85
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 55
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 64
-
-   74 expresion_relacional: expresion_relacional OPERADOR_MAYOR_IGUAL_TOKEN . expresion_aditiva
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion_aditiva         ir al estado 86
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 55
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 65
-
-   76 expresion_aditiva: expresion_aditiva OPERADOR_SUMA_TOKEN . expresion_multiplicativa
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion_multiplicativa  ir al estado 87
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 55
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 66
-
-   77 expresion_aditiva: expresion_aditiva OPERADOR_RESTA_TOKEN . expresion_multiplicativa
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion_multiplicativa  ir al estado 88
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 55
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 67
-
-   79 expresion_multiplicativa: expresion_multiplicativa OPERADOR_MULTIPLICACION_TOKEN . expresion_unaria
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion_unaria        ir al estado 89
-    expresion_postfix       ir al estado 43
-    primaria                ir al estado 55
-    constante_entera_valor  ir al estado 45
-    string_literal          ir al estado 46
-
-
-estado 68
-
-   80 expresion_multiplicativa: expresion_multiplicativa OPERADOR_DIVISION_TOKEN . expresion_unaria
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion_unaria        ir al estado 90
-    expresion_postfix       ir al estado 43
-    primaria                ir al estado 55
-    constante_entera_valor  ir al estado 45
-    string_literal          ir al estado 46
-
-
-estado 69
-
-   63 expresion_asignacion: primaria ASIGNACION_TOKEN . expresion_asignacion
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion_asignacion      ir al estado 91
-    expresion_condicional     ir al estado 35
-    expresion_logica_or       ir al estado 36
-    expresion_logica_and      ir al estado 37
-    expresion_igualdad        ir al estado 38
-    expresion_relacional      ir al estado 39
-    expresion_aditiva         ir al estado 40
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 44
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 70
-
-   28 definicion_funcion: especificador_tipo declarador_con_tipo PARENTESIS_IZQ_TOKEN contenido_parametros_funcion PARENTESIS_DER_TOKEN . cuerpo_funcion
-
-    LLAVE_IZQ_TOKEN  desplazar e ir al estado 92
-
-    cuerpo_funcion  ir al estado 93
-
-
-estado 71
-
-   37 param_declaracion: especificador_tipo declarador_con_tipo .
-
-    $default  reduce usando la regla 37 (param_declaracion)
-
-
-estado 72
-
-   36 lista_real_parametros: lista_real_parametros COMA_TOKEN . param_declaracion
-
-    INT_TOKEN   desplazar e ir al estado 1
-    CHAR_TOKEN  desplazar e ir al estado 2
-    VOID_TOKEN  desplazar e ir al estado 3
-
-    especificador_tipo  ir al estado 49
-    param_declaracion   ir al estado 94
-
-
-estado 73
-
-   21 decl_parametros_funcion: VOID_TOKEN .
-   32 especificador_tipo: VOID_TOKEN .
-
-    PARENTESIS_DER_TOKEN  reduce usando la regla 21 (decl_parametros_funcion)
-    PARENTESIS_DER_TOKEN  [reduce usando la regla 32 (especificador_tipo)]
-    $default              reduce usando la regla 32 (especificador_tipo)
-
-
-estado 74
-
-   27 param_declaracion_funcion: PUNTOS_SUSPENSIVOS_TOKEN .
-
-    $default  reduce usando la regla 27 (param_declaracion_funcion)
-
-
-estado 75
-
-   16 declarador_con_tipo: punteros_opc IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN decl_parametros_funcion . PARENTESIS_DER_TOKEN
-
-    PARENTESIS_DER_TOKEN  desplazar e ir al estado 95
-
-
-estado 76
-
-   22 decl_parametros_funcion: lista_real_parametros_decl .
-   24 lista_real_parametros_decl: lista_real_parametros_decl . COMA_TOKEN param_declaracion_funcion
-
-    COMA_TOKEN  desplazar e ir al estado 96
-
-    $default  reduce usando la regla 22 (decl_parametros_funcion)
-
-
-estado 77
-
-   23 lista_real_parametros_decl: param_declaracion_funcion .
-
-    $default  reduce usando la regla 23 (lista_real_parametros_decl)
-
-
-estado 78
-
-   25 param_declaracion_funcion: especificador_tipo . declarador_con_tipo
-   26                          | especificador_tipo .
-
-    OPERADOR_MULTIPLICACION_TOKEN  desplazar e ir al estado 13
-
-    IDENTIFICADOR_TOKEN  reduce usando la regla 17 (punteros_opc)
-    $default             reduce usando la regla 26 (param_declaracion_funcion)
-
-    declarador_con_tipo  ir al estado 97
-    punteros_opc         ir al estado 18
-
-
-estado 79
-
-   86 expresion_postfix: IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN $@4 . lista_argumentos_opc PARENTESIS_DER_TOKEN
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    $default  reduce usando la regla 93 (lista_argumentos_opc)
-
-    expresion_asignacion      ir al estado 98
-    expresion_condicional     ir al estado 35
-    expresion_logica_or       ir al estado 36
-    expresion_logica_and      ir al estado 37
-    expresion_igualdad        ir al estado 38
-    expresion_relacional      ir al estado 39
-    expresion_aditiva         ir al estado 40
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 44
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-    lista_argumentos_opc      ir al estado 99
-    lista_argumentos          ir al estado 100
-
-
-estado 80
-
-   90 primaria: PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN .
-
-    $default  reduce usando la regla 90 (primaria)
-
-
-estado 81
-
-   68 expresion_igualdad: expresion_igualdad COMPARACION_IGUAL_TOKEN expresion_relacional .
-   71 expresion_relacional: expresion_relacional . OPERADOR_MENOR_TOKEN expresion_aditiva
-   72                     | expresion_relacional . OPERADOR_MAYOR_TOKEN expresion_aditiva
-   73                     | expresion_relacional . OPERADOR_MENOR_IGUAL_TOKEN expresion_aditiva
-   74                     | expresion_relacional . OPERADOR_MAYOR_IGUAL_TOKEN expresion_aditiva
-
-    OPERADOR_MENOR_TOKEN        desplazar e ir al estado 61
-    OPERADOR_MAYOR_TOKEN        desplazar e ir al estado 62
-    OPERADOR_MENOR_IGUAL_TOKEN  desplazar e ir al estado 63
-    OPERADOR_MAYOR_IGUAL_TOKEN  desplazar e ir al estado 64
-
-    $default  reduce usando la regla 68 (expresion_igualdad)
-
-
-estado 82
-
-   69 expresion_igualdad: expresion_igualdad COMPARACION_DIFERENTE_TOKEN expresion_relacional .
-   71 expresion_relacional: expresion_relacional . OPERADOR_MENOR_TOKEN expresion_aditiva
-   72                     | expresion_relacional . OPERADOR_MAYOR_TOKEN expresion_aditiva
-   73                     | expresion_relacional . OPERADOR_MENOR_IGUAL_TOKEN expresion_aditiva
-   74                     | expresion_relacional . OPERADOR_MAYOR_IGUAL_TOKEN expresion_aditiva
-
-    OPERADOR_MENOR_TOKEN        desplazar e ir al estado 61
-    OPERADOR_MAYOR_TOKEN        desplazar e ir al estado 62
-    OPERADOR_MENOR_IGUAL_TOKEN  desplazar e ir al estado 63
-    OPERADOR_MAYOR_IGUAL_TOKEN  desplazar e ir al estado 64
-
-    $default  reduce usando la regla 69 (expresion_igualdad)
-
-
-estado 83
-
-   71 expresion_relacional: expresion_relacional OPERADOR_MENOR_TOKEN expresion_aditiva .
-   76 expresion_aditiva: expresion_aditiva . OPERADOR_SUMA_TOKEN expresion_multiplicativa
-   77                  | expresion_aditiva . OPERADOR_RESTA_TOKEN expresion_multiplicativa
-
-    OPERADOR_SUMA_TOKEN   desplazar e ir al estado 65
-    OPERADOR_RESTA_TOKEN  desplazar e ir al estado 66
-
-    $default  reduce usando la regla 71 (expresion_relacional)
-
-
-estado 84
-
-   72 expresion_relacional: expresion_relacional OPERADOR_MAYOR_TOKEN expresion_aditiva .
-   76 expresion_aditiva: expresion_aditiva . OPERADOR_SUMA_TOKEN expresion_multiplicativa
-   77                  | expresion_aditiva . OPERADOR_RESTA_TOKEN expresion_multiplicativa
-
-    OPERADOR_SUMA_TOKEN   desplazar e ir al estado 65
-    OPERADOR_RESTA_TOKEN  desplazar e ir al estado 66
-
-    $default  reduce usando la regla 72 (expresion_relacional)
-
-
-estado 85
-
-   73 expresion_relacional: expresion_relacional OPERADOR_MENOR_IGUAL_TOKEN expresion_aditiva .
-   76 expresion_aditiva: expresion_aditiva . OPERADOR_SUMA_TOKEN expresion_multiplicativa
-   77                  | expresion_aditiva . OPERADOR_RESTA_TOKEN expresion_multiplicativa
-
-    OPERADOR_SUMA_TOKEN   desplazar e ir al estado 65
-    OPERADOR_RESTA_TOKEN  desplazar e ir al estado 66
-
-    $default  reduce usando la regla 73 (expresion_relacional)
-
-
-estado 86
-
-   74 expresion_relacional: expresion_relacional OPERADOR_MAYOR_IGUAL_TOKEN expresion_aditiva .
-   76 expresion_aditiva: expresion_aditiva . OPERADOR_SUMA_TOKEN expresion_multiplicativa
-   77                  | expresion_aditiva . OPERADOR_RESTA_TOKEN expresion_multiplicativa
-
-    OPERADOR_SUMA_TOKEN   desplazar e ir al estado 65
-    OPERADOR_RESTA_TOKEN  desplazar e ir al estado 66
-
-    $default  reduce usando la regla 74 (expresion_relacional)
-
-
-estado 87
-
-   76 expresion_aditiva: expresion_aditiva OPERADOR_SUMA_TOKEN expresion_multiplicativa .
-   79 expresion_multiplicativa: expresion_multiplicativa . OPERADOR_MULTIPLICACION_TOKEN expresion_unaria
-   80                         | expresion_multiplicativa . OPERADOR_DIVISION_TOKEN expresion_unaria
-
-    OPERADOR_MULTIPLICACION_TOKEN  desplazar e ir al estado 67
-    OPERADOR_DIVISION_TOKEN        desplazar e ir al estado 68
-
-    $default  reduce usando la regla 76 (expresion_aditiva)
-
-
-estado 88
-
-   77 expresion_aditiva: expresion_aditiva OPERADOR_RESTA_TOKEN expresion_multiplicativa .
-   79 expresion_multiplicativa: expresion_multiplicativa . OPERADOR_MULTIPLICACION_TOKEN expresion_unaria
-   80                         | expresion_multiplicativa . OPERADOR_DIVISION_TOKEN expresion_unaria
-
-    OPERADOR_MULTIPLICACION_TOKEN  desplazar e ir al estado 67
-    OPERADOR_DIVISION_TOKEN        desplazar e ir al estado 68
-
-    $default  reduce usando la regla 77 (expresion_aditiva)
-
-
-estado 89
-
-   79 expresion_multiplicativa: expresion_multiplicativa OPERADOR_MULTIPLICACION_TOKEN expresion_unaria .
-
-    $default  reduce usando la regla 79 (expresion_multiplicativa)
-
-
-estado 90
-
-   80 expresion_multiplicativa: expresion_multiplicativa OPERADOR_DIVISION_TOKEN expresion_unaria .
-
-    $default  reduce usando la regla 80 (expresion_multiplicativa)
-
-
-estado 91
-
-   63 expresion_asignacion: primaria ASIGNACION_TOKEN expresion_asignacion .
-
-    $default  reduce usando la regla 63 (expresion_asignacion)
-
-
-estado 92
-
-   39 cuerpo_funcion: LLAVE_IZQ_TOKEN . $@2 lista_elementos_bloque_opc LLAVE_DER_TOKEN
-
-    $default  reduce usando la regla 38 ($@2)
-
-    $@2  ir al estado 101
-
-
-estado 93
-
-   28 definicion_funcion: especificador_tipo declarador_con_tipo PARENTESIS_IZQ_TOKEN contenido_parametros_funcion PARENTESIS_DER_TOKEN cuerpo_funcion .
-
-    $default  reduce usando la regla 28 (definicion_funcion)
-
-
-estado 94
-
-   36 lista_real_parametros: lista_real_parametros COMA_TOKEN param_declaracion .
-
-    $default  reduce usando la regla 36 (lista_real_parametros)
-
-
-estado 95
-
-   16 declarador_con_tipo: punteros_opc IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN decl_parametros_funcion PARENTESIS_DER_TOKEN .
-
-    $default  reduce usando la regla 16 (declarador_con_tipo)
-
-
-estado 96
-
-   24 lista_real_parametros_decl: lista_real_parametros_decl COMA_TOKEN . param_declaracion_funcion
-
-    INT_TOKEN                 desplazar e ir al estado 1
-    CHAR_TOKEN                desplazar e ir al estado 2
-    VOID_TOKEN                desplazar e ir al estado 3
-    PUNTOS_SUSPENSIVOS_TOKEN  desplazar e ir al estado 74
-
-    param_declaracion_funcion  ir al estado 102
-    especificador_tipo         ir al estado 78
-
-
-estado 97
-
-   25 param_declaracion_funcion: especificador_tipo declarador_con_tipo .
-
-    $default  reduce usando la regla 25 (param_declaracion_funcion)
-
-
-estado 98
-
-   95 lista_argumentos: expresion_asignacion .
-
-    $default  reduce usando la regla 95 (lista_argumentos)
-
-
-estado 99
-
-   86 expresion_postfix: IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN $@4 lista_argumentos_opc . PARENTESIS_DER_TOKEN
-
-    PARENTESIS_DER_TOKEN  desplazar e ir al estado 103
-
-
-estado 100
-
-   94 lista_argumentos_opc: lista_argumentos .
-   96 lista_argumentos: lista_argumentos . COMA_TOKEN expresion_asignacion
-
-    COMA_TOKEN  desplazar e ir al estado 104
-
-    $default  reduce usando la regla 94 (lista_argumentos_opc)
-
-
-estado 101
-
-   39 cuerpo_funcion: LLAVE_IZQ_TOKEN $@2 . lista_elementos_bloque_opc LLAVE_DER_TOKEN
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
     INT_TOKEN               desplazar e ir al estado 1
     CHAR_TOKEN              desplazar e ir al estado 2
     VOID_TOKEN              desplazar e ir al estado 3
-    IF_TOKEN                desplazar e ir al estado 105
-    WHILE_TOKEN             desplazar e ir al estado 106
-    RETURN_TOKEN            desplazar e ir al estado 107
+    IF_TOKEN                desplazar e ir al estado 65
+    WHILE_TOKEN             desplazar e ir al estado 66
+    RETURN_TOKEN            desplazar e ir al estado 67
     OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
     OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
     PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-    LLAVE_IZQ_TOKEN         desplazar e ir al estado 92
+    LLAVE_IZQ_TOKEN         desplazar e ir al estado 23
 
-    PUNTO_COMA_TOKEN  reduce usando la regla 52 (expresion_opc)
-    $default          reduce usando la regla 40 (lista_elementos_bloque_opc)
+    PUNTO_COMA_TOKEN  reduce usando la regla 46 (expresion_opc)
+    $default          reduce usando la regla 34 (lista_elementos_bloque_opc)
 
-    declaracion_global          ir al estado 108
-    especificador_tipo          ir al estado 109
-    cuerpo_funcion              ir al estado 110
-    lista_elementos_bloque_opc  ir al estado 111
-    lista_elementos_bloque      ir al estado 112
-    elemento_bloque             ir al estado 113
-    sentencia                   ir al estado 114
-    sentencia_expresion         ir al estado 115
-    expresion_opc               ir al estado 116
-    sentencia_compuesta         ir al estado 117
-    sentencia_seleccion         ir al estado 118
-    if_condition_setup          ir al estado 119
-    sentencia_iteracion         ir al estado 120
-    sentencia_salto             ir al estado 121
-    expresion                   ir al estado 122
-    expresion_asignacion        ir al estado 58
+    declaracion_global          ir al estado 68
+    especificador_tipo          ir al estado 69
+    cuerpo_funcion              ir al estado 70
+    lista_elementos_bloque_opc  ir al estado 71
+    lista_elementos_bloque      ir al estado 72
+    elemento_bloque             ir al estado 73
+    sentencia                   ir al estado 74
+    sentencia_expresion         ir al estado 75
+    expresion_opc               ir al estado 76
+    sentencia_compuesta         ir al estado 77
+    sentencia_seleccion         ir al estado 78
+    if_condition_setup          ir al estado 79
+    sentencia_iteracion         ir al estado 80
+    sentencia_salto             ir al estado 81
+    expresion                   ir al estado 82
+    expresion_asignacion        ir al estado 53
     expresion_condicional       ir al estado 35
     expresion_logica_or         ir al estado 36
     expresion_logica_and        ir al estado 37
@@ -1489,35 +789,256 @@ estado 101
     expresion_postfix           ir al estado 43
     primaria                    ir al estado 44
     constante_entera_valor      ir al estado 45
-    string_literal              ir al estado 46
 
 
-estado 102
+estado 47
 
-   24 lista_real_parametros_decl: lista_real_parametros_decl COMA_TOKEN param_declaracion_funcion .
+   16 declarador_con_tipo: punteros_opc IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN . decl_parametros_funcion PARENTESIS_DER_TOKEN
 
-    $default  reduce usando la regla 24 (lista_real_parametros_decl)
+    INT_TOKEN                 desplazar e ir al estado 1
+    CHAR_TOKEN                desplazar e ir al estado 2
+    VOID_TOKEN                desplazar e ir al estado 83
+    PUNTOS_SUSPENSIVOS_TOKEN  desplazar e ir al estado 84
+
+    $default  reduce usando la regla 20 (decl_parametros_funcion)
+
+    decl_parametros_funcion     ir al estado 85
+    lista_real_parametros_decl  ir al estado 86
+    param_declaracion_funcion   ir al estado 87
+    especificador_tipo          ir al estado 88
 
 
-estado 103
+estado 48
 
-   86 expresion_postfix: IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN $@4 lista_argumentos_opc PARENTESIS_DER_TOKEN .
+   79 expresion_postfix: IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN . lista_argumentos_opc PARENTESIS_DER_TOKEN
 
-    $default  reduce usando la regla 86 (expresion_postfix)
+    $default  reduce usando la regla 84 (lista_argumentos_opc)
+
+    lista_argumentos_opc  ir al estado 89
 
 
-estado 104
+estado 49
 
-   96 lista_argumentos: lista_argumentos COMA_TOKEN . expresion_asignacion
+   77 expresion_unaria: OPERADOR_SUMA_TOKEN expresion_unaria .
 
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
+    $default  reduce usando la regla 77 (expresion_unaria)
+
+
+estado 50
+
+   78 expresion_postfix: primaria .
+
+    $default  reduce usando la regla 78 (expresion_postfix)
+
+
+estado 51
+
+   76 expresion_unaria: OPERADOR_RESTA_TOKEN expresion_unaria .
+
+    $default  reduce usando la regla 76 (expresion_unaria)
+
+
+estado 52
+
+   82 primaria: PARENTESIS_IZQ_TOKEN expresion . PARENTESIS_DER_TOKEN
+
+    PARENTESIS_DER_TOKEN  desplazar e ir al estado 90
+
+
+estado 53
+
+   55 expresion: expresion_asignacion .
+
+    $default  reduce usando la regla 55 (expresion)
+
+
+estado 54
+
+   62 expresion_igualdad: expresion_igualdad COMPARACION_IGUAL_TOKEN . expresion_relacional
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
     OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
     OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
     PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
 
-    expresion_asignacion      ir al estado 123
+    expresion_relacional      ir al estado 91
+    expresion_aditiva         ir al estado 40
+    expresion_multiplicativa  ir al estado 41
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 50
+    constante_entera_valor    ir al estado 45
+
+
+estado 55
+
+   63 expresion_igualdad: expresion_igualdad COMPARACION_DIFERENTE_TOKEN . expresion_relacional
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+
+    expresion_relacional      ir al estado 92
+    expresion_aditiva         ir al estado 40
+    expresion_multiplicativa  ir al estado 41
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 50
+    constante_entera_valor    ir al estado 45
+
+
+estado 56
+
+   65 expresion_relacional: expresion_relacional OPERADOR_MENOR_TOKEN . expresion_aditiva
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+
+    expresion_aditiva         ir al estado 93
+    expresion_multiplicativa  ir al estado 41
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 50
+    constante_entera_valor    ir al estado 45
+
+
+estado 57
+
+   66 expresion_relacional: expresion_relacional OPERADOR_MAYOR_TOKEN . expresion_aditiva
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+
+    expresion_aditiva         ir al estado 94
+    expresion_multiplicativa  ir al estado 41
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 50
+    constante_entera_valor    ir al estado 45
+
+
+estado 58
+
+   67 expresion_relacional: expresion_relacional OPERADOR_MENOR_IGUAL_TOKEN . expresion_aditiva
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+
+    expresion_aditiva         ir al estado 95
+    expresion_multiplicativa  ir al estado 41
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 50
+    constante_entera_valor    ir al estado 45
+
+
+estado 59
+
+   68 expresion_relacional: expresion_relacional OPERADOR_MAYOR_IGUAL_TOKEN . expresion_aditiva
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+
+    expresion_aditiva         ir al estado 96
+    expresion_multiplicativa  ir al estado 41
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 50
+    constante_entera_valor    ir al estado 45
+
+
+estado 60
+
+   70 expresion_aditiva: expresion_aditiva OPERADOR_SUMA_TOKEN . expresion_multiplicativa
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+
+    expresion_multiplicativa  ir al estado 97
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 50
+    constante_entera_valor    ir al estado 45
+
+
+estado 61
+
+   71 expresion_aditiva: expresion_aditiva OPERADOR_RESTA_TOKEN . expresion_multiplicativa
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+
+    expresion_multiplicativa  ir al estado 98
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 50
+    constante_entera_valor    ir al estado 45
+
+
+estado 62
+
+   73 expresion_multiplicativa: expresion_multiplicativa OPERADOR_MULTIPLICACION_TOKEN . expresion_unaria
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+
+    expresion_unaria        ir al estado 99
+    expresion_postfix       ir al estado 43
+    primaria                ir al estado 50
+    constante_entera_valor  ir al estado 45
+
+
+estado 63
+
+   74 expresion_multiplicativa: expresion_multiplicativa OPERADOR_DIVISION_TOKEN . expresion_unaria
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+
+    expresion_unaria        ir al estado 100
+    expresion_postfix       ir al estado 43
+    primaria                ir al estado 50
+    constante_entera_valor  ir al estado 45
+
+
+estado 64
+
+   57 expresion_asignacion: primaria ASIGNACION_TOKEN . expresion_asignacion
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+
+    expresion_asignacion      ir al estado 101
     expresion_condicional     ir al estado 35
     expresion_logica_or       ir al estado 36
     expresion_logica_and      ir al estado 37
@@ -1529,39 +1050,37 @@ estado 104
     expresion_postfix         ir al estado 43
     primaria                  ir al estado 44
     constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
 
 
-estado 105
+estado 65
 
-   58 if_condition_setup: IF_TOKEN . PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN
+   52 if_condition_setup: IF_TOKEN . PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN
 
-    PARENTESIS_IZQ_TOKEN  desplazar e ir al estado 124
-
-
-estado 106
-
-   59 sentencia_iteracion: WHILE_TOKEN . PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN sentencia
-
-    PARENTESIS_IZQ_TOKEN  desplazar e ir al estado 125
+    PARENTESIS_IZQ_TOKEN  desplazar e ir al estado 102
 
 
-estado 107
+estado 66
 
-   60 sentencia_salto: RETURN_TOKEN . expresion_opc PUNTO_COMA_TOKEN
+   53 sentencia_iteracion: WHILE_TOKEN . PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN sentencia
 
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
+    PARENTESIS_IZQ_TOKEN  desplazar e ir al estado 103
+
+
+estado 67
+
+   54 sentencia_salto: RETURN_TOKEN . expresion_opc PUNTO_COMA_TOKEN
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
     OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
     OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
     PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
 
-    $default  reduce usando la regla 52 (expresion_opc)
+    $default  reduce usando la regla 46 (expresion_opc)
 
-    expresion_opc             ir al estado 126
-    expresion                 ir al estado 122
-    expresion_asignacion      ir al estado 58
+    expresion_opc             ir al estado 104
+    expresion                 ir al estado 82
+    expresion_asignacion      ir al estado 53
     expresion_condicional     ir al estado 35
     expresion_logica_or       ir al estado 36
     expresion_logica_and      ir al estado 37
@@ -1573,17 +1092,16 @@ estado 107
     expresion_postfix         ir al estado 43
     primaria                  ir al estado 44
     constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
 
 
-estado 108
+estado 68
 
-   44 elemento_bloque: declaracion_global .
+   38 elemento_bloque: declaracion_global .
 
-    $default  reduce usando la regla 44 (elemento_bloque)
+    $default  reduce usando la regla 38 (elemento_bloque)
 
 
-estado 109
+estado 69
 
     8 declaracion_global: especificador_tipo . lista_init_declaradores_opc PUNTO_COMA_TOKEN
 
@@ -1595,145 +1113,563 @@ estado 109
     lista_init_declaradores_opc  ir al estado 14
     lista_init_declaradores      ir al estado 15
     init_declarador              ir al estado 16
-    declarador_con_tipo          ir al estado 27
+    declarador_con_tipo          ir al estado 28
     punteros_opc                 ir al estado 18
+
+
+estado 70
+
+   48 sentencia_compuesta: cuerpo_funcion .
+
+    $default  reduce usando la regla 48 (sentencia_compuesta)
+
+
+estado 71
+
+   33 cuerpo_funcion: LLAVE_IZQ_TOKEN $@2 lista_elementos_bloque_opc . LLAVE_DER_TOKEN
+
+    LLAVE_DER_TOKEN  desplazar e ir al estado 105
+
+
+estado 72
+
+   35 lista_elementos_bloque_opc: lista_elementos_bloque .
+   37 lista_elementos_bloque: lista_elementos_bloque . elemento_bloque
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    INT_TOKEN               desplazar e ir al estado 1
+    CHAR_TOKEN              desplazar e ir al estado 2
+    VOID_TOKEN              desplazar e ir al estado 3
+    IF_TOKEN                desplazar e ir al estado 65
+    WHILE_TOKEN             desplazar e ir al estado 66
+    RETURN_TOKEN            desplazar e ir al estado 67
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+    LLAVE_IZQ_TOKEN         desplazar e ir al estado 23
+
+    PUNTO_COMA_TOKEN  reduce usando la regla 46 (expresion_opc)
+    $default          reduce usando la regla 35 (lista_elementos_bloque_opc)
+
+    declaracion_global        ir al estado 68
+    especificador_tipo        ir al estado 69
+    cuerpo_funcion            ir al estado 70
+    elemento_bloque           ir al estado 106
+    sentencia                 ir al estado 74
+    sentencia_expresion       ir al estado 75
+    expresion_opc             ir al estado 76
+    sentencia_compuesta       ir al estado 77
+    sentencia_seleccion       ir al estado 78
+    if_condition_setup        ir al estado 79
+    sentencia_iteracion       ir al estado 80
+    sentencia_salto           ir al estado 81
+    expresion                 ir al estado 82
+    expresion_asignacion      ir al estado 53
+    expresion_condicional     ir al estado 35
+    expresion_logica_or       ir al estado 36
+    expresion_logica_and      ir al estado 37
+    expresion_igualdad        ir al estado 38
+    expresion_relacional      ir al estado 39
+    expresion_aditiva         ir al estado 40
+    expresion_multiplicativa  ir al estado 41
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 44
+    constante_entera_valor    ir al estado 45
+
+
+estado 73
+
+   36 lista_elementos_bloque: elemento_bloque .
+
+    $default  reduce usando la regla 36 (lista_elementos_bloque)
+
+
+estado 74
+
+   39 elemento_bloque: sentencia .
+
+    $default  reduce usando la regla 39 (elemento_bloque)
+
+
+estado 75
+
+   40 sentencia: sentencia_expresion .
+
+    $default  reduce usando la regla 40 (sentencia)
+
+
+estado 76
+
+   45 sentencia_expresion: expresion_opc . PUNTO_COMA_TOKEN
+
+    PUNTO_COMA_TOKEN  desplazar e ir al estado 107
+
+
+estado 77
+
+   41 sentencia: sentencia_compuesta .
+
+    $default  reduce usando la regla 41 (sentencia)
+
+
+estado 78
+
+   42 sentencia: sentencia_seleccion .
+
+    $default  reduce usando la regla 42 (sentencia)
+
+
+estado 79
+
+   49 sentencia_seleccion: if_condition_setup . sentencia
+   51                    | if_condition_setup . sentencia ELSE_TOKEN $@3 sentencia
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    IF_TOKEN                desplazar e ir al estado 65
+    WHILE_TOKEN             desplazar e ir al estado 66
+    RETURN_TOKEN            desplazar e ir al estado 67
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+    LLAVE_IZQ_TOKEN         desplazar e ir al estado 23
+
+    $default  reduce usando la regla 46 (expresion_opc)
+
+    cuerpo_funcion            ir al estado 70
+    sentencia                 ir al estado 108
+    sentencia_expresion       ir al estado 75
+    expresion_opc             ir al estado 76
+    sentencia_compuesta       ir al estado 77
+    sentencia_seleccion       ir al estado 78
+    if_condition_setup        ir al estado 79
+    sentencia_iteracion       ir al estado 80
+    sentencia_salto           ir al estado 81
+    expresion                 ir al estado 82
+    expresion_asignacion      ir al estado 53
+    expresion_condicional     ir al estado 35
+    expresion_logica_or       ir al estado 36
+    expresion_logica_and      ir al estado 37
+    expresion_igualdad        ir al estado 38
+    expresion_relacional      ir al estado 39
+    expresion_aditiva         ir al estado 40
+    expresion_multiplicativa  ir al estado 41
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 44
+    constante_entera_valor    ir al estado 45
+
+
+estado 80
+
+   43 sentencia: sentencia_iteracion .
+
+    $default  reduce usando la regla 43 (sentencia)
+
+
+estado 81
+
+   44 sentencia: sentencia_salto .
+
+    $default  reduce usando la regla 44 (sentencia)
+
+
+estado 82
+
+   47 expresion_opc: expresion .
+
+    $default  reduce usando la regla 47 (expresion_opc)
+
+
+estado 83
+
+   21 decl_parametros_funcion: VOID_TOKEN .
+   29 especificador_tipo: VOID_TOKEN .
+
+    PARENTESIS_DER_TOKEN  reduce usando la regla 21 (decl_parametros_funcion)
+    PARENTESIS_DER_TOKEN  [reduce usando la regla 29 (especificador_tipo)]
+    $default              reduce usando la regla 29 (especificador_tipo)
+
+
+estado 84
+
+   27 param_declaracion_funcion: PUNTOS_SUSPENSIVOS_TOKEN .
+
+    $default  reduce usando la regla 27 (param_declaracion_funcion)
+
+
+estado 85
+
+   16 declarador_con_tipo: punteros_opc IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN decl_parametros_funcion . PARENTESIS_DER_TOKEN
+
+    PARENTESIS_DER_TOKEN  desplazar e ir al estado 109
+
+
+estado 86
+
+   22 decl_parametros_funcion: lista_real_parametros_decl .
+   24 lista_real_parametros_decl: lista_real_parametros_decl . COMA_TOKEN param_declaracion_funcion
+
+    COMA_TOKEN  desplazar e ir al estado 110
+
+    $default  reduce usando la regla 22 (decl_parametros_funcion)
+
+
+estado 87
+
+   23 lista_real_parametros_decl: param_declaracion_funcion .
+
+    $default  reduce usando la regla 23 (lista_real_parametros_decl)
+
+
+estado 88
+
+   25 param_declaracion_funcion: especificador_tipo . declarador_con_tipo
+   26                          | especificador_tipo .
+
+    OPERADOR_MULTIPLICACION_TOKEN  desplazar e ir al estado 13
+
+    IDENTIFICADOR_TOKEN  reduce usando la regla 17 (punteros_opc)
+    $default             reduce usando la regla 26 (param_declaracion_funcion)
+
+    declarador_con_tipo  ir al estado 111
+    punteros_opc         ir al estado 18
+
+
+estado 89
+
+   79 expresion_postfix: IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN lista_argumentos_opc . PARENTESIS_DER_TOKEN
+
+    PARENTESIS_DER_TOKEN  desplazar e ir al estado 112
+
+
+estado 90
+
+   82 primaria: PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN .
+
+    $default  reduce usando la regla 82 (primaria)
+
+
+estado 91
+
+   62 expresion_igualdad: expresion_igualdad COMPARACION_IGUAL_TOKEN expresion_relacional .
+   65 expresion_relacional: expresion_relacional . OPERADOR_MENOR_TOKEN expresion_aditiva
+   66                     | expresion_relacional . OPERADOR_MAYOR_TOKEN expresion_aditiva
+   67                     | expresion_relacional . OPERADOR_MENOR_IGUAL_TOKEN expresion_aditiva
+   68                     | expresion_relacional . OPERADOR_MAYOR_IGUAL_TOKEN expresion_aditiva
+
+    OPERADOR_MENOR_TOKEN        desplazar e ir al estado 56
+    OPERADOR_MAYOR_TOKEN        desplazar e ir al estado 57
+    OPERADOR_MENOR_IGUAL_TOKEN  desplazar e ir al estado 58
+    OPERADOR_MAYOR_IGUAL_TOKEN  desplazar e ir al estado 59
+
+    $default  reduce usando la regla 62 (expresion_igualdad)
+
+
+estado 92
+
+   63 expresion_igualdad: expresion_igualdad COMPARACION_DIFERENTE_TOKEN expresion_relacional .
+   65 expresion_relacional: expresion_relacional . OPERADOR_MENOR_TOKEN expresion_aditiva
+   66                     | expresion_relacional . OPERADOR_MAYOR_TOKEN expresion_aditiva
+   67                     | expresion_relacional . OPERADOR_MENOR_IGUAL_TOKEN expresion_aditiva
+   68                     | expresion_relacional . OPERADOR_MAYOR_IGUAL_TOKEN expresion_aditiva
+
+    OPERADOR_MENOR_TOKEN        desplazar e ir al estado 56
+    OPERADOR_MAYOR_TOKEN        desplazar e ir al estado 57
+    OPERADOR_MENOR_IGUAL_TOKEN  desplazar e ir al estado 58
+    OPERADOR_MAYOR_IGUAL_TOKEN  desplazar e ir al estado 59
+
+    $default  reduce usando la regla 63 (expresion_igualdad)
+
+
+estado 93
+
+   65 expresion_relacional: expresion_relacional OPERADOR_MENOR_TOKEN expresion_aditiva .
+   70 expresion_aditiva: expresion_aditiva . OPERADOR_SUMA_TOKEN expresion_multiplicativa
+   71                  | expresion_aditiva . OPERADOR_RESTA_TOKEN expresion_multiplicativa
+
+    OPERADOR_SUMA_TOKEN   desplazar e ir al estado 60
+    OPERADOR_RESTA_TOKEN  desplazar e ir al estado 61
+
+    $default  reduce usando la regla 65 (expresion_relacional)
+
+
+estado 94
+
+   66 expresion_relacional: expresion_relacional OPERADOR_MAYOR_TOKEN expresion_aditiva .
+   70 expresion_aditiva: expresion_aditiva . OPERADOR_SUMA_TOKEN expresion_multiplicativa
+   71                  | expresion_aditiva . OPERADOR_RESTA_TOKEN expresion_multiplicativa
+
+    OPERADOR_SUMA_TOKEN   desplazar e ir al estado 60
+    OPERADOR_RESTA_TOKEN  desplazar e ir al estado 61
+
+    $default  reduce usando la regla 66 (expresion_relacional)
+
+
+estado 95
+
+   67 expresion_relacional: expresion_relacional OPERADOR_MENOR_IGUAL_TOKEN expresion_aditiva .
+   70 expresion_aditiva: expresion_aditiva . OPERADOR_SUMA_TOKEN expresion_multiplicativa
+   71                  | expresion_aditiva . OPERADOR_RESTA_TOKEN expresion_multiplicativa
+
+    OPERADOR_SUMA_TOKEN   desplazar e ir al estado 60
+    OPERADOR_RESTA_TOKEN  desplazar e ir al estado 61
+
+    $default  reduce usando la regla 67 (expresion_relacional)
+
+
+estado 96
+
+   68 expresion_relacional: expresion_relacional OPERADOR_MAYOR_IGUAL_TOKEN expresion_aditiva .
+   70 expresion_aditiva: expresion_aditiva . OPERADOR_SUMA_TOKEN expresion_multiplicativa
+   71                  | expresion_aditiva . OPERADOR_RESTA_TOKEN expresion_multiplicativa
+
+    OPERADOR_SUMA_TOKEN   desplazar e ir al estado 60
+    OPERADOR_RESTA_TOKEN  desplazar e ir al estado 61
+
+    $default  reduce usando la regla 68 (expresion_relacional)
+
+
+estado 97
+
+   70 expresion_aditiva: expresion_aditiva OPERADOR_SUMA_TOKEN expresion_multiplicativa .
+   73 expresion_multiplicativa: expresion_multiplicativa . OPERADOR_MULTIPLICACION_TOKEN expresion_unaria
+   74                         | expresion_multiplicativa . OPERADOR_DIVISION_TOKEN expresion_unaria
+
+    OPERADOR_MULTIPLICACION_TOKEN  desplazar e ir al estado 62
+    OPERADOR_DIVISION_TOKEN        desplazar e ir al estado 63
+
+    $default  reduce usando la regla 70 (expresion_aditiva)
+
+
+estado 98
+
+   71 expresion_aditiva: expresion_aditiva OPERADOR_RESTA_TOKEN expresion_multiplicativa .
+   73 expresion_multiplicativa: expresion_multiplicativa . OPERADOR_MULTIPLICACION_TOKEN expresion_unaria
+   74                         | expresion_multiplicativa . OPERADOR_DIVISION_TOKEN expresion_unaria
+
+    OPERADOR_MULTIPLICACION_TOKEN  desplazar e ir al estado 62
+    OPERADOR_DIVISION_TOKEN        desplazar e ir al estado 63
+
+    $default  reduce usando la regla 71 (expresion_aditiva)
+
+
+estado 99
+
+   73 expresion_multiplicativa: expresion_multiplicativa OPERADOR_MULTIPLICACION_TOKEN expresion_unaria .
+
+    $default  reduce usando la regla 73 (expresion_multiplicativa)
+
+
+estado 100
+
+   74 expresion_multiplicativa: expresion_multiplicativa OPERADOR_DIVISION_TOKEN expresion_unaria .
+
+    $default  reduce usando la regla 74 (expresion_multiplicativa)
+
+
+estado 101
+
+   57 expresion_asignacion: primaria ASIGNACION_TOKEN expresion_asignacion .
+
+    $default  reduce usando la regla 57 (expresion_asignacion)
+
+
+estado 102
+
+   52 if_condition_setup: IF_TOKEN PARENTESIS_IZQ_TOKEN . expresion PARENTESIS_DER_TOKEN
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+
+    expresion                 ir al estado 113
+    expresion_asignacion      ir al estado 53
+    expresion_condicional     ir al estado 35
+    expresion_logica_or       ir al estado 36
+    expresion_logica_and      ir al estado 37
+    expresion_igualdad        ir al estado 38
+    expresion_relacional      ir al estado 39
+    expresion_aditiva         ir al estado 40
+    expresion_multiplicativa  ir al estado 41
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 44
+    constante_entera_valor    ir al estado 45
+
+
+estado 103
+
+   53 sentencia_iteracion: WHILE_TOKEN PARENTESIS_IZQ_TOKEN . expresion PARENTESIS_DER_TOKEN sentencia
+
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+
+    expresion                 ir al estado 114
+    expresion_asignacion      ir al estado 53
+    expresion_condicional     ir al estado 35
+    expresion_logica_or       ir al estado 36
+    expresion_logica_and      ir al estado 37
+    expresion_igualdad        ir al estado 38
+    expresion_relacional      ir al estado 39
+    expresion_aditiva         ir al estado 40
+    expresion_multiplicativa  ir al estado 41
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 44
+    constante_entera_valor    ir al estado 45
+
+
+estado 104
+
+   54 sentencia_salto: RETURN_TOKEN expresion_opc . PUNTO_COMA_TOKEN
+
+    PUNTO_COMA_TOKEN  desplazar e ir al estado 115
+
+
+estado 105
+
+   33 cuerpo_funcion: LLAVE_IZQ_TOKEN $@2 lista_elementos_bloque_opc LLAVE_DER_TOKEN .
+
+    $default  reduce usando la regla 33 (cuerpo_funcion)
+
+
+estado 106
+
+   37 lista_elementos_bloque: lista_elementos_bloque elemento_bloque .
+
+    $default  reduce usando la regla 37 (lista_elementos_bloque)
+
+
+estado 107
+
+   45 sentencia_expresion: expresion_opc PUNTO_COMA_TOKEN .
+
+    $default  reduce usando la regla 45 (sentencia_expresion)
+
+
+estado 108
+
+   49 sentencia_seleccion: if_condition_setup sentencia .
+   51                    | if_condition_setup sentencia . ELSE_TOKEN $@3 sentencia
+
+    ELSE_TOKEN  desplazar e ir al estado 116
+
+    $default  reduce usando la regla 49 (sentencia_seleccion)
+
+
+estado 109
+
+   16 declarador_con_tipo: punteros_opc IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN decl_parametros_funcion PARENTESIS_DER_TOKEN .
+
+    $default  reduce usando la regla 16 (declarador_con_tipo)
 
 
 estado 110
 
-   54 sentencia_compuesta: cuerpo_funcion .
+   24 lista_real_parametros_decl: lista_real_parametros_decl COMA_TOKEN . param_declaracion_funcion
 
-    $default  reduce usando la regla 54 (sentencia_compuesta)
+    INT_TOKEN                 desplazar e ir al estado 1
+    CHAR_TOKEN                desplazar e ir al estado 2
+    VOID_TOKEN                desplazar e ir al estado 3
+    PUNTOS_SUSPENSIVOS_TOKEN  desplazar e ir al estado 84
+
+    param_declaracion_funcion  ir al estado 117
+    especificador_tipo         ir al estado 88
 
 
 estado 111
 
-   39 cuerpo_funcion: LLAVE_IZQ_TOKEN $@2 lista_elementos_bloque_opc . LLAVE_DER_TOKEN
+   25 param_declaracion_funcion: especificador_tipo declarador_con_tipo .
 
-    LLAVE_DER_TOKEN  desplazar e ir al estado 127
+    $default  reduce usando la regla 25 (param_declaracion_funcion)
 
 
 estado 112
 
-   41 lista_elementos_bloque_opc: lista_elementos_bloque .
-   43 lista_elementos_bloque: lista_elementos_bloque . elemento_bloque
+   79 expresion_postfix: IDENTIFICADOR_TOKEN PARENTESIS_IZQ_TOKEN lista_argumentos_opc PARENTESIS_DER_TOKEN .
 
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    INT_TOKEN               desplazar e ir al estado 1
-    CHAR_TOKEN              desplazar e ir al estado 2
-    VOID_TOKEN              desplazar e ir al estado 3
-    IF_TOKEN                desplazar e ir al estado 105
-    WHILE_TOKEN             desplazar e ir al estado 106
-    RETURN_TOKEN            desplazar e ir al estado 107
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-    LLAVE_IZQ_TOKEN         desplazar e ir al estado 92
-
-    PUNTO_COMA_TOKEN  reduce usando la regla 52 (expresion_opc)
-    $default          reduce usando la regla 41 (lista_elementos_bloque_opc)
-
-    declaracion_global        ir al estado 108
-    especificador_tipo        ir al estado 109
-    cuerpo_funcion            ir al estado 110
-    elemento_bloque           ir al estado 128
-    sentencia                 ir al estado 114
-    sentencia_expresion       ir al estado 115
-    expresion_opc             ir al estado 116
-    sentencia_compuesta       ir al estado 117
-    sentencia_seleccion       ir al estado 118
-    if_condition_setup        ir al estado 119
-    sentencia_iteracion       ir al estado 120
-    sentencia_salto           ir al estado 121
-    expresion                 ir al estado 122
-    expresion_asignacion      ir al estado 58
-    expresion_condicional     ir al estado 35
-    expresion_logica_or       ir al estado 36
-    expresion_logica_and      ir al estado 37
-    expresion_igualdad        ir al estado 38
-    expresion_relacional      ir al estado 39
-    expresion_aditiva         ir al estado 40
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 44
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
+    $default  reduce usando la regla 79 (expresion_postfix)
 
 
 estado 113
 
-   42 lista_elementos_bloque: elemento_bloque .
+   52 if_condition_setup: IF_TOKEN PARENTESIS_IZQ_TOKEN expresion . PARENTESIS_DER_TOKEN
 
-    $default  reduce usando la regla 42 (lista_elementos_bloque)
+    PARENTESIS_DER_TOKEN  desplazar e ir al estado 118
 
 
 estado 114
 
-   45 elemento_bloque: sentencia .
+   53 sentencia_iteracion: WHILE_TOKEN PARENTESIS_IZQ_TOKEN expresion . PARENTESIS_DER_TOKEN sentencia
 
-    $default  reduce usando la regla 45 (elemento_bloque)
+    PARENTESIS_DER_TOKEN  desplazar e ir al estado 119
 
 
 estado 115
 
-   46 sentencia: sentencia_expresion .
+   54 sentencia_salto: RETURN_TOKEN expresion_opc PUNTO_COMA_TOKEN .
 
-    $default  reduce usando la regla 46 (sentencia)
+    $default  reduce usando la regla 54 (sentencia_salto)
 
 
 estado 116
 
-   51 sentencia_expresion: expresion_opc . PUNTO_COMA_TOKEN
+   51 sentencia_seleccion: if_condition_setup sentencia ELSE_TOKEN . $@3 sentencia
 
-    PUNTO_COMA_TOKEN  desplazar e ir al estado 129
+    $default  reduce usando la regla 50 ($@3)
+
+    $@3  ir al estado 120
 
 
 estado 117
 
-   47 sentencia: sentencia_compuesta .
+   24 lista_real_parametros_decl: lista_real_parametros_decl COMA_TOKEN param_declaracion_funcion .
 
-    $default  reduce usando la regla 47 (sentencia)
+    $default  reduce usando la regla 24 (lista_real_parametros_decl)
 
 
 estado 118
 
-   48 sentencia: sentencia_seleccion .
+   52 if_condition_setup: IF_TOKEN PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN .
 
-    $default  reduce usando la regla 48 (sentencia)
+    $default  reduce usando la regla 52 (if_condition_setup)
 
 
 estado 119
 
-   55 sentencia_seleccion: if_condition_setup . sentencia
-   57                    | if_condition_setup . sentencia ELSE_TOKEN $@3 sentencia
+   53 sentencia_iteracion: WHILE_TOKEN PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN . sentencia
 
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    IF_TOKEN                desplazar e ir al estado 105
-    WHILE_TOKEN             desplazar e ir al estado 106
-    RETURN_TOKEN            desplazar e ir al estado 107
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    IF_TOKEN                desplazar e ir al estado 65
+    WHILE_TOKEN             desplazar e ir al estado 66
+    RETURN_TOKEN            desplazar e ir al estado 67
     OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
     OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
     PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-    LLAVE_IZQ_TOKEN         desplazar e ir al estado 92
+    LLAVE_IZQ_TOKEN         desplazar e ir al estado 23
 
-    $default  reduce usando la regla 52 (expresion_opc)
+    $default  reduce usando la regla 46 (expresion_opc)
 
-    cuerpo_funcion            ir al estado 110
-    sentencia                 ir al estado 130
-    sentencia_expresion       ir al estado 115
-    expresion_opc             ir al estado 116
-    sentencia_compuesta       ir al estado 117
-    sentencia_seleccion       ir al estado 118
-    if_condition_setup        ir al estado 119
-    sentencia_iteracion       ir al estado 120
-    sentencia_salto           ir al estado 121
-    expresion                 ir al estado 122
-    expresion_asignacion      ir al estado 58
+    cuerpo_funcion            ir al estado 70
+    sentencia                 ir al estado 121
+    sentencia_expresion       ir al estado 75
+    expresion_opc             ir al estado 76
+    sentencia_compuesta       ir al estado 77
+    sentencia_seleccion       ir al estado 78
+    if_condition_setup        ir al estado 79
+    sentencia_iteracion       ir al estado 80
+    sentencia_salto           ir al estado 81
+    expresion                 ir al estado 82
+    expresion_asignacion      ir al estado 53
     expresion_condicional     ir al estado 35
     expresion_logica_or       ir al estado 36
     expresion_logica_and      ir al estado 37
@@ -1745,259 +1681,57 @@ estado 119
     expresion_postfix         ir al estado 43
     primaria                  ir al estado 44
     constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
 
 
 estado 120
 
-   49 sentencia: sentencia_iteracion .
+   51 sentencia_seleccion: if_condition_setup sentencia ELSE_TOKEN $@3 . sentencia
 
-    $default  reduce usando la regla 49 (sentencia)
+    IDENTIFICADOR_TOKEN     desplazar e ir al estado 29
+    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 30
+    IF_TOKEN                desplazar e ir al estado 65
+    WHILE_TOKEN             desplazar e ir al estado 66
+    RETURN_TOKEN            desplazar e ir al estado 67
+    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
+    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
+    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
+    LLAVE_IZQ_TOKEN         desplazar e ir al estado 23
+
+    $default  reduce usando la regla 46 (expresion_opc)
+
+    cuerpo_funcion            ir al estado 70
+    sentencia                 ir al estado 122
+    sentencia_expresion       ir al estado 75
+    expresion_opc             ir al estado 76
+    sentencia_compuesta       ir al estado 77
+    sentencia_seleccion       ir al estado 78
+    if_condition_setup        ir al estado 79
+    sentencia_iteracion       ir al estado 80
+    sentencia_salto           ir al estado 81
+    expresion                 ir al estado 82
+    expresion_asignacion      ir al estado 53
+    expresion_condicional     ir al estado 35
+    expresion_logica_or       ir al estado 36
+    expresion_logica_and      ir al estado 37
+    expresion_igualdad        ir al estado 38
+    expresion_relacional      ir al estado 39
+    expresion_aditiva         ir al estado 40
+    expresion_multiplicativa  ir al estado 41
+    expresion_unaria          ir al estado 42
+    expresion_postfix         ir al estado 43
+    primaria                  ir al estado 44
+    constante_entera_valor    ir al estado 45
 
 
 estado 121
 
-   50 sentencia: sentencia_salto .
+   53 sentencia_iteracion: WHILE_TOKEN PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN sentencia .
 
-    $default  reduce usando la regla 50 (sentencia)
+    $default  reduce usando la regla 53 (sentencia_iteracion)
 
 
 estado 122
 
-   53 expresion_opc: expresion .
+   51 sentencia_seleccion: if_condition_setup sentencia ELSE_TOKEN $@3 sentencia .
 
-    $default  reduce usando la regla 53 (expresion_opc)
-
-
-estado 123
-
-   96 lista_argumentos: lista_argumentos COMA_TOKEN expresion_asignacion .
-
-    $default  reduce usando la regla 96 (lista_argumentos)
-
-
-estado 124
-
-   58 if_condition_setup: IF_TOKEN PARENTESIS_IZQ_TOKEN . expresion PARENTESIS_DER_TOKEN
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion                 ir al estado 131
-    expresion_asignacion      ir al estado 58
-    expresion_condicional     ir al estado 35
-    expresion_logica_or       ir al estado 36
-    expresion_logica_and      ir al estado 37
-    expresion_igualdad        ir al estado 38
-    expresion_relacional      ir al estado 39
-    expresion_aditiva         ir al estado 40
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 44
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 125
-
-   59 sentencia_iteracion: WHILE_TOKEN PARENTESIS_IZQ_TOKEN . expresion PARENTESIS_DER_TOKEN sentencia
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-
-    expresion                 ir al estado 132
-    expresion_asignacion      ir al estado 58
-    expresion_condicional     ir al estado 35
-    expresion_logica_or       ir al estado 36
-    expresion_logica_and      ir al estado 37
-    expresion_igualdad        ir al estado 38
-    expresion_relacional      ir al estado 39
-    expresion_aditiva         ir al estado 40
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 44
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 126
-
-   60 sentencia_salto: RETURN_TOKEN expresion_opc . PUNTO_COMA_TOKEN
-
-    PUNTO_COMA_TOKEN  desplazar e ir al estado 133
-
-
-estado 127
-
-   39 cuerpo_funcion: LLAVE_IZQ_TOKEN $@2 lista_elementos_bloque_opc LLAVE_DER_TOKEN .
-
-    $default  reduce usando la regla 39 (cuerpo_funcion)
-
-
-estado 128
-
-   43 lista_elementos_bloque: lista_elementos_bloque elemento_bloque .
-
-    $default  reduce usando la regla 43 (lista_elementos_bloque)
-
-
-estado 129
-
-   51 sentencia_expresion: expresion_opc PUNTO_COMA_TOKEN .
-
-    $default  reduce usando la regla 51 (sentencia_expresion)
-
-
-estado 130
-
-   55 sentencia_seleccion: if_condition_setup sentencia .
-   57                    | if_condition_setup sentencia . ELSE_TOKEN $@3 sentencia
-
-    ELSE_TOKEN  desplazar e ir al estado 134
-
-    $default  reduce usando la regla 55 (sentencia_seleccion)
-
-
-estado 131
-
-   58 if_condition_setup: IF_TOKEN PARENTESIS_IZQ_TOKEN expresion . PARENTESIS_DER_TOKEN
-
-    PARENTESIS_DER_TOKEN  desplazar e ir al estado 135
-
-
-estado 132
-
-   59 sentencia_iteracion: WHILE_TOKEN PARENTESIS_IZQ_TOKEN expresion . PARENTESIS_DER_TOKEN sentencia
-
-    PARENTESIS_DER_TOKEN  desplazar e ir al estado 136
-
-
-estado 133
-
-   60 sentencia_salto: RETURN_TOKEN expresion_opc PUNTO_COMA_TOKEN .
-
-    $default  reduce usando la regla 60 (sentencia_salto)
-
-
-estado 134
-
-   57 sentencia_seleccion: if_condition_setup sentencia ELSE_TOKEN . $@3 sentencia
-
-    $default  reduce usando la regla 56 ($@3)
-
-    $@3  ir al estado 137
-
-
-estado 135
-
-   58 if_condition_setup: IF_TOKEN PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN .
-
-    $default  reduce usando la regla 58 (if_condition_setup)
-
-
-estado 136
-
-   59 sentencia_iteracion: WHILE_TOKEN PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN . sentencia
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    IF_TOKEN                desplazar e ir al estado 105
-    WHILE_TOKEN             desplazar e ir al estado 106
-    RETURN_TOKEN            desplazar e ir al estado 107
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-    LLAVE_IZQ_TOKEN         desplazar e ir al estado 92
-
-    $default  reduce usando la regla 52 (expresion_opc)
-
-    cuerpo_funcion            ir al estado 110
-    sentencia                 ir al estado 138
-    sentencia_expresion       ir al estado 115
-    expresion_opc             ir al estado 116
-    sentencia_compuesta       ir al estado 117
-    sentencia_seleccion       ir al estado 118
-    if_condition_setup        ir al estado 119
-    sentencia_iteracion       ir al estado 120
-    sentencia_salto           ir al estado 121
-    expresion                 ir al estado 122
-    expresion_asignacion      ir al estado 58
-    expresion_condicional     ir al estado 35
-    expresion_logica_or       ir al estado 36
-    expresion_logica_and      ir al estado 37
-    expresion_igualdad        ir al estado 38
-    expresion_relacional      ir al estado 39
-    expresion_aditiva         ir al estado 40
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 44
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 137
-
-   57 sentencia_seleccion: if_condition_setup sentencia ELSE_TOKEN $@3 . sentencia
-
-    IDENTIFICADOR_TOKEN     desplazar e ir al estado 28
-    CONSTANTE_ENTERA_TOKEN  desplazar e ir al estado 29
-    STRING_LITERAL_TOKEN    desplazar e ir al estado 30
-    IF_TOKEN                desplazar e ir al estado 105
-    WHILE_TOKEN             desplazar e ir al estado 106
-    RETURN_TOKEN            desplazar e ir al estado 107
-    OPERADOR_SUMA_TOKEN     desplazar e ir al estado 31
-    OPERADOR_RESTA_TOKEN    desplazar e ir al estado 32
-    PARENTESIS_IZQ_TOKEN    desplazar e ir al estado 33
-    LLAVE_IZQ_TOKEN         desplazar e ir al estado 92
-
-    $default  reduce usando la regla 52 (expresion_opc)
-
-    cuerpo_funcion            ir al estado 110
-    sentencia                 ir al estado 139
-    sentencia_expresion       ir al estado 115
-    expresion_opc             ir al estado 116
-    sentencia_compuesta       ir al estado 117
-    sentencia_seleccion       ir al estado 118
-    if_condition_setup        ir al estado 119
-    sentencia_iteracion       ir al estado 120
-    sentencia_salto           ir al estado 121
-    expresion                 ir al estado 122
-    expresion_asignacion      ir al estado 58
-    expresion_condicional     ir al estado 35
-    expresion_logica_or       ir al estado 36
-    expresion_logica_and      ir al estado 37
-    expresion_igualdad        ir al estado 38
-    expresion_relacional      ir al estado 39
-    expresion_aditiva         ir al estado 40
-    expresion_multiplicativa  ir al estado 41
-    expresion_unaria          ir al estado 42
-    expresion_postfix         ir al estado 43
-    primaria                  ir al estado 44
-    constante_entera_valor    ir al estado 45
-    string_literal            ir al estado 46
-
-
-estado 138
-
-   59 sentencia_iteracion: WHILE_TOKEN PARENTESIS_IZQ_TOKEN expresion PARENTESIS_DER_TOKEN sentencia .
-
-    $default  reduce usando la regla 59 (sentencia_iteracion)
-
-
-estado 139
-
-   57 sentencia_seleccion: if_condition_setup sentencia ELSE_TOKEN $@3 sentencia .
-
-    $default  reduce usando la regla 57 (sentencia_seleccion)
+    $default  reduce usando la regla 51 (sentencia_seleccion)
